@@ -2,7 +2,7 @@ using System;
 
 // ReSharper disable CheckNamespace
 
-namespace GameLovers.StatechartMachine
+namespace Geuneda.StatechartMachine
 {
 	/// <summary>
 	/// Events are unique inputs to make the State Chart move forward when defined in the setup.

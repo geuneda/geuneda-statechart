@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 // ReSharper disable CheckNamespace
 
-namespace GameLovers.StatechartMachine.Internal
+namespace Geuneda.StatechartMachine.Internal
 {
 	/// <summary>
 	/// References of the data to be use in the <see cref="IStateFactory"/> to manage the pattern of state creation

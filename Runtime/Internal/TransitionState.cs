@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 // ReSharper disable CheckNamespace
 
-namespace GameLovers.StatechartMachine.Internal
+namespace Geuneda.StatechartMachine.Internal
 {
 	/// <inheritdoc cref="ITransitionState"/>
 	internal class TransitionState : StateInternal, ITransitionState

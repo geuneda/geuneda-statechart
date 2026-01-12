@@ -1,6 +1,6 @@
 // ReSharper disable CheckNamespace
 
-namespace GameLovers.StatechartMachine
+namespace Geuneda.StatechartMachine
 {
 	/// <summary>
 	/// The controller for the <see cref="IWaitState"/>

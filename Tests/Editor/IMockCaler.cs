@@ -1,6 +1,6 @@
 ﻿// ReSharper disable CheckNamespace
 
-namespace GameLoversEditor.StatechartMachine.Tests
+namespace GeunedaEditor.StatechartMachine.Tests
 {
 	/// <summary>
 	/// Mocking interface to check method calls received

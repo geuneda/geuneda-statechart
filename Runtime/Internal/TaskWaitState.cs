@@ -6,7 +6,7 @@ using UnityEngine;
 
 // ReSharper disable CheckNamespace
 
-namespace GameLovers.StatechartMachine.Internal
+namespace Geuneda.StatechartMachine.Internal
 {
 	/// <inheritdoc cref="ITaskWaitState"/>
 	internal class TaskWaitState : StateInternal, ITaskWaitState

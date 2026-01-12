@@ -1,6 +1,6 @@
 // ReSharper disable CheckNamespace
 
-namespace GameLovers.StatechartMachine
+namespace Geuneda.StatechartMachine
 {
 	/// <summary>
 	/// The state factory is used to setup the <see cref="IStatechart"/> representation of states and transitions

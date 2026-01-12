@@ -1,11 +1,11 @@
 {
-    "name": "GameLovers.Statechart.Editor.Tests",
+    "name": "Geuneda.Statechart.Editor.Tests",
     "rootNamespace": "",
     "references": [
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner",
         "UniTask",
-        "GameLovers.Statechart"
+        "Geuneda.Statechart"
     ],
     "includePlatforms": [
         "Editor"

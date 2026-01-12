@@ -3,7 +3,7 @@ using UnityEngine;
 
 // ReSharper disable CheckNamespace
 
-namespace GameLovers.StatechartMachine.Internal
+namespace Geuneda.StatechartMachine.Internal
 {
 	/// <inheritdoc cref="IState"/>
 	internal interface IStateInternal : IState, IEquatable<IStateInternal>

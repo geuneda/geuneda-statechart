@@ -1,9 +1,9 @@
 using System;
-using GameLovers.StatechartMachine.Internal;
+using Geuneda.StatechartMachine.Internal;
 
 // ReSharper disable CheckNamespace
 
-namespace GameLovers.StatechartMachine
+namespace Geuneda.StatechartMachine
 {
 	/// <summary>
 	 /// Interface to help debug the state chart

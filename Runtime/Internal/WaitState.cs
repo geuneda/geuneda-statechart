@@ -4,7 +4,7 @@ using UnityEngine;
 
 // ReSharper disable CheckNamespace
 
-namespace GameLovers.StatechartMachine.Internal
+namespace Geuneda.StatechartMachine.Internal
 {
 	/// <inheritdoc cref="IWaitState"/>
 	internal class WaitState : StateInternal, IWaitState

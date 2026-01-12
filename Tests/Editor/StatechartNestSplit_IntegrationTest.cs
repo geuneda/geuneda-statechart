@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Threading.Tasks;
-using GameLovers.StatechartMachine;
+using Geuneda.StatechartMachine;
 using NSubstitute;
 using NUnit.Framework;
 
 // ReSharper disable CheckNamespace
 
-namespace GameLoversEditor.StatechartMachine.Tests
+namespace GeunedaEditor.StatechartMachine.Tests
 {
 	[TestFixture]
 	public class StatechartNestSplit_IntegrationTest

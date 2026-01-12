@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 // ReSharper disable CheckNamespace
 
-namespace GameLovers.StatechartMachine
+namespace Geuneda.StatechartMachine
 {
 	/// <summary>
 	/// The representation of a state in the <see cref="IStatechart"/>

@@ -1,6 +1,6 @@
 // ReSharper disable CheckNamespace
 
-namespace GameLovers.StatechartMachine.Internal
+namespace Geuneda.StatechartMachine.Internal
 {
 	/// <summary>
 	/// This data objects contains the basic information about the current states managed by the statechart

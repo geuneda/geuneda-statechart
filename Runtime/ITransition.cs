@@ -2,7 +2,7 @@ using System;
 
 // ReSharper disable CheckNamespace
 
-namespace GameLovers.StatechartMachine
+namespace Geuneda.StatechartMachine
 {
 	/// <summary>
 	/// The transition with the data to make a switch between two <see cref="IState"/>
