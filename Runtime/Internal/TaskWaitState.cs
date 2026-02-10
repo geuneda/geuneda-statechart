@@ -20,7 +20,7 @@ namespace Geuneda.StatechartMachine.Internal
 		private readonly IList<Action> _onExit = new List<Action>();
 
 		/// <summary>
-		/// Requests the completion state of this task await state
+		/// 이 태스크 대기 상태의 완료 상태를 요청합니다
 		/// </summary>
 		public bool Completed { get; private set; }
 
@@ -31,7 +31,7 @@ namespace Geuneda.StatechartMachine.Internal
 		}
 
 		/// <summary>
-		/// If this task is still being executed, then queue the first command to be executed after the task is completed
+		/// 이 태스크가 아직 실행 중인 경우, 태스크 완료 후 실행할 첫 번째 명령을 큐에 넣습니다
 		/// </summary>
 		public void EnqueuEvent(IStatechartEvent statechartEvent)
 		{
@@ -149,7 +149,7 @@ namespace Geuneda.StatechartMachine.Internal
 					Debug.Log($"TaskWait - '{eventName}' : '{_taskAwaitAction.Target}.{_taskAwaitAction.Method.Name}()' => '{Name}'");
 				}
 
-				//await Task.Yield();
+				//await Task.Yield(); 호출 생략
 				await _taskAwaitAction();
 
 				Completed = true;

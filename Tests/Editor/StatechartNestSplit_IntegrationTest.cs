@@ -206,7 +206,7 @@ namespace GeunedaEditor.StatechartMachine.Tests
 			_caller.Received(3).FinalOnEnterCall(0);
 		}
 
-		#region Setups
+		#region 설정
 
 		private async Task TaskWaitAction()
 		{

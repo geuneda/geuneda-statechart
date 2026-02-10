@@ -6,7 +6,7 @@ using System.Collections.Generic;
 namespace Geuneda.StatechartMachine.Internal
 {
 	/// <summary>
-	/// References of the data to be use in the <see cref="IStateFactory"/> to manage the pattern of state creation
+	/// 상태 생성 패턴을 관리하기 위해 <see cref="IStateFactory"/>에서 사용할 데이터 참조
 	/// </summary>
 	internal struct StateFactoryData
 	{
@@ -18,28 +18,28 @@ namespace Geuneda.StatechartMachine.Internal
 	internal interface IStateFactoryInternal : IStateFactory
 	{
 		/// <summary>
-		/// The Layer that this <see cref="IStateFactory"/> is building upon
+		/// 이 <see cref="IStateFactory"/>가 구축하는 레이어
 		/// </summary>
 		uint RegionLayer { get; }
 		/// <summary>
-		/// The current <see cref="InitialState"/> that this <see cref="IStateFactory"/> is building upon
+		/// 이 <see cref="IStateFactory"/>가 구축하는 현재 <see cref="InitialState"/>
 		/// </summary>
 		InitialState InitialState { get; }
 		/// <summary>
-		/// The current <see cref="FinalState"/> that this <see cref="IStateFactory"/> is building upon
+		/// 이 <see cref="IStateFactory"/>가 구축하는 현재 <see cref="FinalState"/>
 		/// </summary>
 		FinalState FinalState { get; }
 		/// <summary>
-		/// The current list of states that this <see cref="IStateFactory"/> is building upon
+		/// 이 <see cref="IStateFactory"/>가 구축하는 현재 상태 목록
 		/// </summary>
 		IList<IStateInternal> States { get; }
 		/// <summary>
-		/// The <see cref="StateFactoryData"/> that this <see cref="IStateFactory"/> is building upon
+		/// 이 <see cref="IStateFactory"/>가 구축하는 <see cref="StateFactoryData"/>
 		/// </summary>
 		StateFactoryData Data { get; }
-		
+
 		/// <summary>
-		/// Adds the given list of <paramref name="states"/> to this <see cref="IStateFactory"/> to building upon
+		/// 주어진 <paramref name="states"/> 목록을 이 <see cref="IStateFactory"/>에 추가하여 구축합니다
 		/// </summary>
 		/// <param name="states"></param>
 		void Add(IList<IStateInternal> states);

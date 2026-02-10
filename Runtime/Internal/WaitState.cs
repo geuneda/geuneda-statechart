@@ -24,8 +24,8 @@ namespace Geuneda.StatechartMachine.Internal
 		}
 
 		/// <summary>
-		/// Forces this state to complete, bypassing the normal flow of exeuction. 
-		/// This is helpful if a parent nested state is controling this state
+		/// 정상적인 실행 흐름을 우회하여 이 상태를 강제 완료합니다.
+		/// 부모 중첩 상태가 이 상태를 제어하는 경우에 유용합니다.
 		/// </summary>
 		public void ForceComplete()
 		{
@@ -35,7 +35,7 @@ namespace Geuneda.StatechartMachine.Internal
 		/// <inheritdoc />
 		public override void Enter()
 		{
-			// It needs to create a new activity everytime on to make sure old activities don't override new ones
+			// 이전 활동이 새 활동을 덮어쓰지 않도록 매번 새 활동을 생성해야 합니다
 			_waitingActivity = new WaitActivity(OnActivityComplete);
 			_triggered = false;
 

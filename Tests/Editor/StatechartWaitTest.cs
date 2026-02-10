@@ -37,7 +37,7 @@ namespace GeunedaEditor.StatechartMachine.Tests
 			_caller.DidNotReceive().StateOnExitCall(0);
 			_caller.DidNotReceive().FinalOnEnterCall(0);
 
-			await Task.Yield(); // To avoid race conditions with the activity creation
+			await Task.Yield(); // 활동 생성 시 경합 조건을 방지하기 위함
 			activity.Complete();
 
 			_caller.Received().OnTransitionCall(1);
@@ -63,7 +63,7 @@ namespace GeunedaEditor.StatechartMachine.Tests
 			_caller.DidNotReceive().StateOnExitCall(0);
 			_caller.DidNotReceive().FinalOnEnterCall(0);
 
-			await Task.Yield(); // To avoid race conditions with the activity creation
+			await Task.Yield(); // 활동 생성 시 경합 조건을 방지하기 위함
 			activitySplit = activity.Split();
 			activity.Complete();
 
@@ -95,7 +95,7 @@ namespace GeunedaEditor.StatechartMachine.Tests
 			_caller.DidNotReceive().StateOnExitCall(0);
 			_caller.DidNotReceive().FinalOnEnterCall(0);
 
-			await Task.Yield(); // To avoid race conditions with the activity creation
+			await Task.Yield(); // 활동 생성 시 경합 조건을 방지하기 위함
 			activity.Split();
 			activity.Complete();
 

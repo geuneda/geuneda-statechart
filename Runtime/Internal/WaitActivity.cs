@@ -9,12 +9,12 @@ namespace Geuneda.StatechartMachine.Internal
 	internal interface IWaitActivityInternal : IWaitActivity
 	{
 		/// <summary>
-		/// Returns true if this activity has been marked as completed, false otherwise
+		/// 이 활동이 완료로 표시되었으면 true를, 그렇지 않으면 false를 반환합니다
 		/// </summary>
 		bool IsCompleted { get; }
 
 		/// <summary>
-		/// Forcely completes this activity and all its children that were splitted before
+		/// 이 활동과 이전에 분리된 모든 자식 활동을 강제 완료합니다
 		/// </summary>
 		void ForceComplete();
 	}
@@ -40,7 +40,7 @@ namespace Geuneda.StatechartMachine.Internal
 		}
 
 		/// <summary>
-		/// This constructor is called externally in <see cref="WaitState"/>
+		/// 이 생성자는 <see cref="WaitState"/>에서 외부적으로 호출됩니다
 		/// </summary>
 		public WaitActivity(Action<uint> onComplete) : this()
 		{

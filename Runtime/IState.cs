@@ -7,159 +7,159 @@ using System.Threading.Tasks;
 namespace Geuneda.StatechartMachine
 {
 	/// <summary>
-	/// The representation of a state in the <see cref="IStatechart"/>
+	/// <see cref="IStatechart"/>에서의 상태 표현
 	/// </summary>
 	public interface IState
 	{
 		/// <summary>
-		/// Allows to show logs in the console to help debugging possible errors in this specific state
+		/// 이 특정 상태에서 발생할 수 있는 오류를 디버깅하기 위해 콘솔에 로그를 표시할 수 있도록 합니다
 		/// </summary>
 		bool LogsEnabled { get; set; }
 	}
 
-	#region Compositions
+	#region 구성 요소
 
 	/// <summary>
-	/// Marks a <see cref="IState"/> with the capability to have a transition to a new different <see cref="IState"/>
+	/// <see cref="IState"/>에 다른 <see cref="IState"/>로의 전이 기능을 부여합니다
 	/// </summary>
 	public interface IStateTransition : IState
 	{
 		/// <summary>
-		/// Setups a transition between two states and it will be processed when triggered by the current state
-		/// It will return the created <see cref="ITransition"/> that will triggered when the event is processed by the state chart
+		/// 두 상태 간의 전이를 설정하며 현재 상태에 의해 트리거될 때 처리됩니다.
+		/// 상태 차트에서 이벤트가 처리될 때 트리거될 생성된 <see cref="ITransition"/>을 반환합니다.
 		/// </summary>
 		ITransition Transition();
 	}
 
 	/// <summary>
-	/// TMarks a <see cref="IState"/> with the capability to have an enter execution when activated
+	/// <see cref="IState"/>에 활성화 시 진입 실행 기능을 부여합니다
 	/// </summary>
 	public interface IStateEnter : IState
 	{
 		/// <summary>
-		/// Adds the <paramref name="action"/> to be invoked when the state is activated
+		/// 상태가 활성화될 때 호출할 <paramref name="action"/>을 추가합니다
 		/// </summary>
 		void OnEnter(Action action);
 	}
 
 	/// <summary>
-	/// Marks a <see cref="IState"/> with the capability to have an exit execution when deactivated
+	/// <see cref="IState"/>에 비활성화 시 퇴장 실행 기능을 부여합니다
 	/// </summary>
 	public interface IStateExit : IState
 	{
 		/// <summary>
-		/// Adds the <paramref name="action"/> to be invoked when the state is deactivated
+		/// 상태가 비활성화될 때 호출할 <paramref name="action"/>을 추가합니다
 		/// </summary>
 		void OnExit(Action action);
 	}
 
 	/// <summary>
-	/// Marks a <see cref="IState"/> with the capability to have to trigger a state transitions
+	/// <see cref="IState"/>에 상태 전이를 트리거하는 기능을 부여합니다
 	/// </summary>
 	public interface IStateEvent : IState
 	{
 		/// <summary>
-		/// Adds the <paramref name="statechartEvent"/> to the state that will trigger a transition when processed by the state chart
-		/// It will return the created <see cref="ITransition"/> that will triggered when the event is processed by the state chart
+		/// 상태 차트에서 처리될 때 전이를 트리거할 <paramref name="statechartEvent"/>를 상태에 추가합니다.
+		/// 상태 차트에서 이벤트가 처리될 때 트리거될 생성된 <see cref="ITransition"/>을 반환합니다.
 		/// </summary>
 		ITransition Event(IStatechartEvent statechartEvent);
 	}
 
 	#endregion
 
-	#region States
+	#region 상태
 
 	/// <summary>
-	/// An initial pseudo state represents a starting point for a region, that is, the point from which execution when its contained,
-	/// the behavior will commence when the region is entered.
-	/// A <see cref="IStatechart"/> can have only one initial state in a single region, but can have more initial states in nested regions.
+	/// 초기 의사 상태는 영역의 시작점을 나타냅니다. 즉, 영역에 진입했을 때
+	/// 실행이 시작되는 지점입니다.
+	/// <see cref="IStatechart"/>는 단일 영역에서 초기 상태를 하나만 가질 수 있지만, 중첩 영역에서는 더 많은 초기 상태를 가질 수 있습니다.
 	/// </summary>
 	public interface IInitialState : IStateExit, IStateTransition
 	{
 	}
 
 	/// <summary>
-	/// A final state marks the enclosing region has completed.
-	/// A Transition to a final state represents the completion of the region that contains the final state.
-	/// A <see cref="IStatechart"/> can have only one final state in a single region, but can have more initial states in nested regions.
+	/// 최종 상태는 포함하는 영역이 완료되었음을 표시합니다.
+	/// 최종 상태로의 전이는 해당 최종 상태를 포함하는 영역의 완료를 나타냅니다.
+	/// <see cref="IStatechart"/>는 단일 영역에서 최종 상태를 하나만 가질 수 있지만, 중첩 영역에서는 더 많은 최종 상태를 가질 수 있습니다.
 	/// </summary>
 	public interface IFinalState : IStateEnter
 	{
 	}
 
 	/// <summary>
-	/// A transition state models a non-blocker situation in the execution of the <see cref="IStatechart"/> behavior.
-	/// Represents a non-blocking point on the state chart execution that automatically continues to the target state
+	/// 전이 상태는 <see cref="IStatechart"/> 동작 실행 중 비차단 상황을 모델링합니다.
+	/// 상태 차트 실행에서 자동으로 대상 상태로 계속 진행하는 비차단 지점을 나타냅니다.
 	/// </summary>
 	public interface ITransitionState : IStateEnter, IStateExit, IStateTransition
 	{
 	}
 
 	/// <summary>
-	/// A simple state models a situation in the execution of the <see cref="IStatechart"/> behavior.
-	/// Represents a blocking point on the state chart execution waiting for an event trigger to continue
+	/// 단순 상태는 <see cref="IStatechart"/> 동작 실행 중 상황을 모델링합니다.
+	/// 이벤트 트리거를 기다리며 상태 차트 실행을 차단하는 지점을 나타냅니다.
 	/// </summary>
 	public interface ISimpleState : IStateEnter, IStateExit, IStateEvent
 	{
 	}
 
 	/// <summary>
-	/// A nest state allows the state chart to create new nested region in the <see cref="IStatechart"/>.
-	/// This can be very helpful to reduced bloated code in order to make it more readable.
+	/// 중첩 상태는 <see cref="IStatechart"/>에서 새로운 중첩 영역을 생성할 수 있게 합니다.
+	/// 코드의 비대함을 줄이고 가독성을 높이는 데 매우 유용합니다.
 	/// </summary>
 	public interface INestState : IStateEnter, IStateExit, IStateEvent
 	{
 		/// <inheritdoc cref="Nest(NestedStateData)"/>
 		/// <remarks>
-		/// Nest state with the <see cref="NestedStateData"/> executes set to true
+		/// <see cref="NestedStateData"/>의 실행 옵션이 true로 설정된 중첩 상태
 		/// </remarks>
 		ITransition Nest(Action<IStateFactory> data);
-		
+
 		/// <summary>
-		/// Creates a new nested region defined in the <paramref name="data"/>.
-		/// It will return the created <see cref="ITransition"/> that will triggered as soon as the nested region is finalized.
+		/// <paramref name="data"/>에 정의된 새로운 중첩 영역을 생성합니다.
+		/// 중첩 영역이 완료되는 즉시 트리거될 생성된 <see cref="ITransition"/>을 반환합니다.
 		/// </summary>
 		/// <remarks>
-		/// It executes the <see cref="IStateExit.OnExit"/> of the current active states when this
-		/// <see cref="INestState"/> is completed.
-		/// It does not execute the <see cref="IFinalState"/> of it's nested states when this
-		/// <see cref="INestState"/> is completed.
+		/// 이 <see cref="INestState"/>가 완료될 때 현재 활성 상태의
+		/// <see cref="IStateExit.OnExit"/>를 실행합니다.
+		/// 이 <see cref="INestState"/>가 완료될 때 중첩 상태의
+		/// <see cref="IFinalState"/>는 실행하지 않습니다.
 		/// </remarks>
 		ITransition Nest(NestedStateData data);
 	}
 
 	/// <summary>
-	/// A wait state is a blocking state that holds the <see cref="IStatechart"/> behavior.
-	/// It waits for the completion of defined activities or for an event to be triggered to resume the state chart execution.
-	/// In case of concurrancy it will first execute <see cref="WaitingFor(Action{IWaitActivity})"/> call before
-	/// checking for this state's <see cref="IStateEvent.Event(IStatechartEvent)"/> behavior.
-	/// In case of an exit from a parent <see cref="INestState"/> or <see cref="ISplitState"/> and this being the current active state, 
-	/// then this state will force complete it's execution and all inner activities to avoid concurrancy bottlenecks.
+	/// 대기 상태는 <see cref="IStatechart"/> 동작을 차단하는 상태입니다.
+	/// 정의된 활동의 완료를 기다리거나 이벤트가 트리거되어 상태 차트 실행을 재개할 때까지 대기합니다.
+	/// 동시성의 경우 이 상태의 <see cref="IStateEvent.Event(IStatechartEvent)"/> 동작을 확인하기 전에
+	/// <see cref="WaitingFor(Action{IWaitActivity})"/> 호출을 먼저 실행합니다.
+	/// 부모 <see cref="INestState"/> 또는 <see cref="ISplitState"/>에서 퇴장할 때 이 상태가 현재 활성 상태인 경우,
+	/// 동시성 병목을 피하기 위해 실행과 모든 내부 활동을 강제 완료합니다.
 	/// </summary>
 	public interface IWaitState : IStateEnter, IStateExit, IStateEvent
 	{
 		/// <summary>
-		/// Blocks the state behaviour until the given <paramref name="waitAction"/> and it's possible child activities,
-		/// are completed.
-		/// It will return the created <see cref="ITransition"/> that will triggered as soon as the state is unblocked.
-		/// In case of concurrancy it will first do this call beforechecking for this 
-		/// state's <see cref="IStateEvent.Event(IStatechartEvent)"/> behavior
+		/// 주어진 <paramref name="waitAction"/>과 가능한 자식 활동이 완료될 때까지
+		/// 상태 동작을 차단합니다.
+		/// 상태가 차단 해제되는 즉시 트리거될 생성된 <see cref="ITransition"/>을 반환합니다.
+		/// 동시성의 경우 이 상태의 <see cref="IStateEvent.Event(IStatechartEvent)"/> 동작을
+		/// 확인하기 전에 이 호출을 먼저 수행합니다.
 		/// </summary>
 		ITransition WaitingFor(Action<IWaitActivity> waitAction);
 	}
 
 	/// <summary>
-	/// A task wait state is a blocking state that holds the <see cref="IStatechart"/> behavior.
-	/// It waits for the completion of async defined <see cref="Task"/> to be completed to resume the state chart execution.
-	/// To avoid concurrancy during a thread task, this state cannot execute any <see cref="IStateEvent.Event(IStatechartEvent)"/>.
-	/// In case of an exit from a parent <see cref="INestState"/> or <see cref="ISplitState"/> and this being the current active state, 
-	/// then this state will pause the exit and queue all the events holded during the Wait proccess in order to avoid concurrancy bottlenecks
+	/// 태스크 대기 상태는 <see cref="IStatechart"/> 동작을 차단하는 상태입니다.
+	/// 비동기로 정의된 <see cref="Task"/>의 완료를 기다린 후 상태 차트 실행을 재개합니다.
+	/// 스레드 태스크 중 동시성을 방지하기 위해 이 상태는 <see cref="IStateEvent.Event(IStatechartEvent)"/>를 실행할 수 없습니다.
+	/// 부모 <see cref="INestState"/> 또는 <see cref="ISplitState"/>에서 퇴장할 때 이 상태가 현재 활성 상태인 경우,
+	/// 동시성 병목을 피하기 위해 퇴장을 일시 정지하고 대기 과정 중 보류된 모든 이벤트를 큐에 넣습니다.
 	/// </summary>
 	public interface ITaskWaitState : IStateEnter, IStateExit
 	{
 		/// <summary>
-		/// Blocks the state behaviour until the given async <paramref name="taskAwaitAction"/> is completed.
-		/// It will return the created <see cref="ITransition"/> that will triggered as soon as the state is unblocked
+		/// 주어진 비동기 <paramref name="taskAwaitAction"/>이 완료될 때까지 상태 동작을 차단합니다.
+		/// 상태가 차단 해제되는 즉시 트리거될 생성된 <see cref="ITransition"/>을 반환합니다.
 		/// </summary>
 		ITransition WaitingFor(Func<Task> taskAwaitAction);
 
@@ -168,72 +168,72 @@ namespace Geuneda.StatechartMachine
 	}
 
 	/// <summary>
-	/// A choice state models a situation in the execution during which some explicit condition holds the <see cref="IStatechart"/> behavior.
-	/// This state doesn't block the state chart execution as it has always valid transition defined.
+	/// 선택 상태는 명시적 조건이 <see cref="IStatechart"/> 동작을 제어하는 실행 중 상황을 모델링합니다.
+	/// 항상 유효한 전이가 정의되어 있으므로 이 상태는 상태 차트 실행을 차단하지 않습니다.
 	/// </summary>
 	public interface IChoiceState : IStateEnter, IStateExit
 	{
 		/// <summary>
-		/// Creates a <see cref="ITransitionCondition"/> with a condition behaviour in the state
-		/// It will return the created <see cref="ITransitionCondition"/> that will triggered when the condition is processed by the state chart
+		/// 상태에 조건 동작을 가진 <see cref="ITransitionCondition"/>을 생성합니다.
+		/// 상태 차트에서 조건이 처리될 때 트리거될 생성된 <see cref="ITransitionCondition"/>을 반환합니다.
 		/// </summary>
 		ITransitionCondition Transition();
 	}
 
 	/// <summary>
-	/// A nest state allows the state chart to create two new nested parallel region in the <see cref="IStatechart"/>.
-	/// The two new nested regions will run and be processed in parallel.
+	/// 분할 상태는 <see cref="IStatechart"/>에서 두 개의 새로운 중첩 병렬 영역을 생성할 수 있게 합니다.
+	/// 두 개의 새로운 중첩 영역은 병렬로 실행되고 처리됩니다.
 	/// </summary>
 	public interface ISplitState : IStateEnter, IStateExit, IStateEvent
 	{
 		/// <inheritdoc cref="Split(NestedStateData[])"/>
 		/// <remarks>
-		/// Split state with the <see cref="NestedStateData"/> executes set to true
+		/// <see cref="NestedStateData"/>의 실행 옵션이 true로 설정된 분할 상태
 		/// </remarks>
 		ITransition Split(params Action<IStateFactory>[] data);
-		
+
 		/// <summary>
-		/// Splits the state into two new nested parallel regions that will be active at the same time.
-		/// Setups all nested region's defined in the <paramref name="data"/>.
-		/// It will return the created <see cref="ITransition"/> that will triggered when both nested regions finalize.
-		/// their execution by both regions reaching their respectively <see cref="IFinalState"/>.
+		/// 상태를 동시에 활성화되는 두 개의 새로운 중첩 병렬 영역으로 분할합니다.
+		/// <paramref name="data"/>에 정의된 모든 중첩 영역을 설정합니다.
+		/// 두 중첩 영역이 각각의 <see cref="IFinalState"/>에 도달하여 실행을 완료하면
+		/// 트리거될 생성된 <see cref="ITransition"/>을 반환합니다.
 		/// </summary>
 		/// <remarks>
-		/// It executes the <see cref="IStateExit.OnExit"/> of the current active states when this
-		/// <see cref="ISplitState"/> is completed.
-		/// It does not execute the <see cref="IFinalState"/> of it's nested states when this
-		/// <see cref="ISplitState"/> is completed.
+		/// 이 <see cref="ISplitState"/>가 완료될 때 현재 활성 상태의
+		/// <see cref="IStateExit.OnExit"/>를 실행합니다.
+		/// 이 <see cref="ISplitState"/>가 완료될 때 중첩 상태의
+		/// <see cref="IFinalState"/>는 실행하지 않습니다.
 		/// </remarks>
 		ITransition Split(params NestedStateData[] data);
 	}
 
 	/// <summary>
-	/// A leave state is very similar to the <see cref="IFinalState"/> and also marks the enclosing region has completed.
-	/// The key difference is that the leave state transition will target a state from a different region,
-	/// bypassing the <see cref="INestState"/> or the <see cref="ISplitState"/> transition target.
-	/// This state must be inside of a <see cref="INestState"/> or a <see cref="ISplitState"/> and can only jump one region layer
+	/// 이탈 상태는 <see cref="IFinalState"/>와 매우 유사하며, 포함하는 영역이 완료되었음을 표시합니다.
+	/// 핵심 차이점은 이탈 상태의 전이가 다른 영역의 상태를 대상으로 하여
+	/// <see cref="INestState"/> 또는 <see cref="ISplitState"/>의 전이 대상을 우회한다는 것입니다.
+	/// 이 상태는 <see cref="INestState"/> 또는 <see cref="ISplitState"/> 내부에 있어야 하며 한 영역 레이어만 점프할 수 있습니다.
 	/// </summary>
 	public interface ILeaveState : IStateEnter, IStateTransition
 	{
 	}
-	
+
 	/// <summary>
-	/// Data composition to setup nested states for <see cref="ISplitState"/> & <see cref="INestState"/>
+	/// <see cref="ISplitState"/> 및 <see cref="INestState"/>를 위한 중첩 상태 설정 데이터 구성
 	/// </summary>
 	public struct NestedStateData
 	{
 		/// <summary>
-		/// Setups of this nested state definition
+		/// 이 중첩 상태 정의의 설정
 		/// </summary>
 		public Action<IStateFactory> Setup;
 		/// <summary>
-		/// If true then the internal current active <see cref="IStateExit.OnExit"/> will be executed when leaving
-		/// the nested state from completion of this <see cref="ISplitState"/>.
+		/// true인 경우 이 <see cref="ISplitState"/>의 완료로 중첩 상태를 떠날 때
+		/// 내부 현재 활성 <see cref="IStateExit.OnExit"/>가 실행됩니다.
 		/// </summary>
 		public bool ExecuteExit;
 		/// <summary>
-		/// If true then the internal <see cref="IFinalState"/> will be executed when leaving the nested state from
-		/// an event or from a <see cref="ILeaveState"/> from one of the inner states.
+		/// true인 경우 이벤트 또는 내부 상태 중 하나의 <see cref="ILeaveState"/>로 인해
+		/// 중첩 상태를 떠날 때 내부 <see cref="IFinalState"/>가 실행됩니다.
 		/// </summary>
 		public bool ExecuteFinal;
 

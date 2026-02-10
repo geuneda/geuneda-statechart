@@ -3,12 +3,12 @@
 namespace Geuneda.StatechartMachine.Internal
 {
 	/// <summary>
-	/// Helper class for the statechart to work properly
+	/// 상태 차트가 올바르게 동작하도록 돕는 헬퍼 클래스
 	/// </summary>
 	internal static class StatechartUtils
 	{
 		/// <summary>
-		/// Cleans ups the given <paramref name="stackTrace"/> of unnecessary string data
+		/// 주어진 <paramref name="stackTrace"/>에서 불필요한 문자열 데이터를 정리합니다
 		/// </summary>
 		public static string RemoveGarbageFromStackTrace(string stackTrace)
 		{

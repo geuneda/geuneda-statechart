@@ -203,7 +203,7 @@ namespace Geuneda.StatechartMachine.Internal
 
 			if (statechartEvent != null && _events.TryGetValue(statechartEvent, out var transition))
 			{
-				// Delay the completion of this state while some tasks are running
+				// 일부 작업이 실행 중인 동안 이 상태의 완료를 지연시킴
 				return !isUnpausing && DelayForceComplete(statechartEvent) ? null : transition;
 			}
 
@@ -211,12 +211,12 @@ namespace Geuneda.StatechartMachine.Internal
 		}
 
 		/// <summary>
-		/// This call allows to delay the comletion of this state for when any awatable tasks block it's completiong.
-		/// In the meantime will forcely complete any <see cref="WaitState"/> or queue <see cref="IStatechartEvent"/>
-		/// for any <see cref="TaskWaitState"/> are running to be completed.
-		/// It will pause this state until all the tasks are completed
-		/// This method takes care of nested states in order to avoid miss connection with it's setup.
-		/// Returns true if the state is paused for the completion of inner <see cref="TaskWaitState"/>
+		/// 대기 가능한 작업이 완료를 차단할 때 이 상태의 완료를 지연시킵니다.
+		/// 그 동안 실행 중인 <see cref="WaitState"/>를 강제 완료하거나, 완료 대기 중인
+		/// <see cref="TaskWaitState"/>에 <see cref="IStatechartEvent"/>를 큐에 넣습니다.
+		/// 모든 작업이 완료될 때까지 이 상태를 일시 정지합니다.
+		/// 이 메서드는 중첩 상태를 처리하여 설정과의 연결 오류를 방지합니다.
+		/// 내부 <see cref="TaskWaitState"/> 완료를 위해 상태가 일시 정지된 경우 true를 반환합니다.
 		/// </summary>
 		internal bool DelayForceComplete(IStatechartEvent statechartEvent)
 		{
@@ -246,7 +246,7 @@ namespace Geuneda.StatechartMachine.Internal
 		}
 		
 		/// <summary>
-		/// Checks if all inner states on hold are already completed
+		/// 대기 중인 모든 내부 상태가 이미 완료되었는지 확인합니다
 		/// </summary>
 		internal bool IsAllCompleted()
 		{
@@ -301,7 +301,7 @@ namespace Geuneda.StatechartMachine.Internal
 
 			if(leaveState != null)
 			{
-				// Delay the completion of this state while some tasks are running
+				// 일부 작업이 실행 중인 동안 이 상태의 완료를 지연시킴
 				nextTransition = !isUnpausing && DelayForceComplete(null) ? null : leaveState.LeaveTransition;
 			}
 

@@ -5,20 +5,20 @@ using System;
 namespace Geuneda.StatechartMachine
 {
 	/// <summary>
-	/// Events are unique inputs to make the State Chart move forward when defined in the setup.
-	/// It requires to call <see cref="IStatechart.Trigger(IStatechartEvent)"/> to move the State Chart forward.
+	/// 이벤트는 설정에서 정의된 경우 상태 차트를 전진시키기 위한 고유 입력입니다.
+	/// 상태 차트를 전진시키려면 <see cref="IStatechart.Trigger(IStatechartEvent)"/>를 호출해야 합니다.
 	/// </summary>
 	public interface IStatechartEvent : IEquatable<IStatechartEvent>
 	{
 		/// <summary>
-		/// The unique Id of the event.
-		/// It is automatically generated on creation.
+		/// 이벤트의 고유 ID.
+		/// 생성 시 자동으로 생성됩니다.
 		/// </summary>
 		uint Id { get; }
-		
+
 		/// <summary>
-		/// The name defined for the event.
-		/// Helpful for debugging purposes.
+		/// 이벤트에 정의된 이름.
+		/// 디버깅 목적에 유용합니다.
 		/// </summary>
 		string Name { get; }
 	}

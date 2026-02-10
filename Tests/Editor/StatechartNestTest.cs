@@ -413,7 +413,7 @@ namespace GeunedaEditor.StatechartMachine.Tests
 			}));
 		}
 
-		#region Setups
+		#region 설정
 
 		private IFinalState SetupSimpleFlow(IStateFactory factory, IState state)
 		{

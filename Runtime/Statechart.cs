@@ -6,45 +6,45 @@ using Geuneda.StatechartMachine.Internal;
 namespace Geuneda.StatechartMachine
 {
 	/// <summary>
-	 /// Interface to help debug the state chart
+	 /// 상태 차트 디버깅을 돕기 위한 인터페이스
 	 /// </summary>
 	public interface IStateMachineDebug
 	{
 		/// <summary>
-		/// Allows to show logs in the console to help debugging possible errors in the states & transitions
+		/// 상태 및 전이에서 발생할 수 있는 오류를 디버깅하기 위해 콘솔에 로그를 표시할 수 있도록 합니다
 		/// </summary>
 		bool LogsEnabled { get; set; }
 	}
 
 	/// <summary>
-	/// The main object which represents the State Chart and drives it forward.
-	/// The State Chart schematics are defined in the constructor setup action and cannot be modified during runtime. 
-	/// See <see cref="http://www.omg.org/spec/UML"/> for Semantics.
+	/// 상태 차트를 나타내고 이를 구동하는 메인 객체입니다.
+	/// 상태 차트 구성은 생성자의 설정 액션에서 정의되며 런타임 중에는 수정할 수 없습니다.
+	/// 시맨틱스는 <see cref="http://www.omg.org/spec/UML"/>을 참조하세요.
 	/// </summary>
 	public interface IStatechart : IStateMachineDebug
 	{
 		/// <summary>
-		/// Processes the event <param name="trigger"></param> for the State Chart with run-to-completion paradigm.
-		/// Triggers only work if the State Chart is not paused.
+		/// 실행 완료(run-to-completion) 패러다임으로 상태 차트에 이벤트 <param name="trigger"></param>를 처리합니다.
+		/// 트리거는 상태 차트가 일시 정지 상태가 아닐 때만 동작합니다.
 		/// </summary>
 		void Trigger(IStatechartEvent trigger);
-		
+
 		/// <summary>
-		/// Start/Resume the control of the State Chart from where is anchored.
-		/// Does nothing if already running.
+		/// 현재 앵커된 위치에서 상태 차트의 제어를 시작/재개합니다.
+		/// 이미 실행 중인 경우 아무 작업도 수행하지 않습니다.
 		/// </summary>
 		void Run();
-		
+
 		/// <summary>
-		/// Pauses the control of the State Chart.
-		/// Call <see cref="Run"/> to resume it.
+		/// 상태 차트의 제어를 일시 정지합니다.
+		/// 재개하려면 <see cref="Run"/>을 호출하세요.
 		/// </summary>
 		void Pause();
-		
+
 		/// <summary>
-		/// Resets the State Chart to it's initial starting point.
-		/// This call doesn't pause or resume the control of the State Chart. If the State Chart is in waiting
-		/// mode for an event or paused, it will require a call <see cref="Run"/> to resume it.
+		/// 상태 차트를 초기 시작 지점으로 리셋합니다.
+		/// 이 호출은 상태 차트의 제어를 일시 정지하거나 재개하지 않습니다. 상태 차트가 이벤트 대기 모드이거나
+		/// 일시 정지 상태인 경우, 재개하려면 <see cref="Run"/>을 호출해야 합니다.
 		/// </summary>
 		void Reset();
 	}

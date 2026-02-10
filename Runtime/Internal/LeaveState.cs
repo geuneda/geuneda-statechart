@@ -28,7 +28,7 @@ namespace Geuneda.StatechartMachine.Internal
 		/// <inheritdoc />
 		public override void Exit()
 		{
-			// Do nothing on the final state
+			// 최종 상태에서는 아무 작업도 수행하지 않음
 		}
 
 		/// <inheritdoc />

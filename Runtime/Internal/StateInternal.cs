@@ -9,38 +9,38 @@ namespace Geuneda.StatechartMachine.Internal
 	internal interface IStateInternal : IState, IEquatable<IStateInternal>
 	{
 		/// <summary>
-		/// The unique value identifying this state
+		/// 이 상태를 식별하는 고유 값
 		/// </summary>
 		uint Id { get; }
 		/// <summary>
-		/// The string representation identifying this state
+		/// 이 상태를 식별하는 문자열 표현
 		/// </summary>
 		string Name { get; }
 		/// <summary>
-		/// The layer in the nested setup this state is in. If in the root then the value will be 0
+		/// 이 상태가 속한 중첩 설정의 레이어. 루트에 있으면 값은 0입니다.
 		/// </summary>
 		uint RegionLayer { get; }
 		/// <summary>
-		/// The stack trace when this setup was created. Relevant for debugging purposes
+		/// 이 설정이 생성될 때의 스택 트레이스. 디버깅 목적에 유용합니다.
 		/// </summary>
 		string CreationStackTrace { get; }
-		
+
 		/// <summary>
-		/// Triggers the given <paramref name="statechartEvent"/> as input to the <see cref="IStatechart"/> and returns
-		/// the processed <see cref="IStateInternal"/> as an output
+		/// 주어진 <paramref name="statechartEvent"/>를 <see cref="IStatechart"/>의 입력으로 트리거하고
+		/// 처리된 <see cref="IStateInternal"/>을 출력으로 반환합니다
 		/// </summary>
 		IStateInternal Trigger(IStatechartEvent statechartEvent);
 		/// <summary>
-		/// Marks the initial moment of this state as the new current state in the <see cref="IStatechart"/>
+		/// 이 상태가 <see cref="IStatechart"/>에서 새로운 현재 상태로 진입하는 초기 시점을 표시합니다
 		/// </summary>
 		void Enter();
 		/// <summary>
-		/// Marks the final moment of this state as the current state in the <see cref="IStatechart"/>
+		/// 이 상태가 <see cref="IStatechart"/>에서 현재 상태에서 벗어나는 최종 시점을 표시합니다
 		/// </summary>
 		void Exit();
 		/// <summary>
-		/// Validates this state to any potential bad setup schemes. Relevant to debug purposes.
-		/// It requires the <see cref="IStatechart"/> to run at runtime.
+		/// 이 상태의 잘못된 설정 구성을 검증합니다. 디버깅 목적에 유용합니다.
+		/// <see cref="IStatechart"/>가 런타임에서 실행되어야 합니다.
 		/// </summary>
 		void Validate();
 	}

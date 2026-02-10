@@ -3,9 +3,9 @@
 namespace Geuneda.StatechartMachine
 {
 	/// <summary>
-	/// The state factory is used to setup the <see cref="IStatechart"/> representation of states and transitions
-	/// There is always a state factory being created per region in the <see cref="IStatechart"/>.
-	/// A state factory is also the data container of the states and transitions of the <see cref="IStatechart"/>
+	/// 상태 팩토리는 <see cref="IStatechart"/>의 상태와 전이 표현을 설정하는 데 사용됩니다.
+	/// <see cref="IStatechart"/>의 각 영역마다 항상 상태 팩토리가 하나씩 생성됩니다.
+	/// 상태 팩토리는 또한 <see cref="IStatechart"/>의 상태와 전이 데이터 컨테이너입니다.
 	/// </summary>
 	public interface IStateFactory
 	{

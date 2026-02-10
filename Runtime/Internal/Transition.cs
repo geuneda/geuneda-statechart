@@ -9,26 +9,26 @@ namespace Geuneda.StatechartMachine.Internal
 	internal interface ITransitionInternal : ITransitionCondition
 	{
 		/// <summary>
-		/// The current target state of this transition
+		/// 이 전이의 현재 대상 상태
 		/// </summary>
 		IStateInternal TargetState { get; }
 		/// <summary>
-		/// True if this transition has a condition to check, false otherwise 
+		/// 이 전이에 확인할 조건이 있으면 true, 그렇지 않으면 false
 		/// </summary>
 		bool HasCondition { get; }
 		/// <summary>
-		/// Debug stack trace string
+		/// 디버그용 스택 트레이스 문자열
 		/// </summary>
 		string CreationStackTrace { get; }
-		
+
 		/// <summary>
-		/// Checks the defined transition condition.
-		/// Returns true if the condition is met, false otherwise
+		/// 정의된 전이 조건을 확인합니다.
+		/// 조건이 충족되면 true를, 그렇지 않으면 false를 반환합니다.
 		/// </summary>
 		/// <returns></returns>
 		bool CheckCondition();
 		/// <summary>
-		/// Trigger the defined transition
+		/// 정의된 전이를 트리거합니다
 		/// </summary>
 		void TriggerTransition();
 	}

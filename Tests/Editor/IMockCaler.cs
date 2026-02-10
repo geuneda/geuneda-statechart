@@ -3,7 +3,7 @@
 namespace GeunedaEditor.StatechartMachine.Tests
 {
 	/// <summary>
-	/// Mocking interface to check method calls received
+	/// 메서드 호출 수신 여부를 확인하기 위한 모킹 인터페이스
 	/// </summary>
 	public interface IMockCaller
 	{

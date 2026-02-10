@@ -19,7 +19,7 @@ namespace Geuneda.StatechartMachine.Internal
 		/// <inheritdoc />
 		public override void Enter()
 		{
-			// Do nothing on the initial state
+			// 초기 상태에서는 아무 작업도 수행하지 않음
 		}
 
 		/// <inheritdoc />
