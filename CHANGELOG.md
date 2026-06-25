@@ -4,13 +4,14 @@
 이 형식은 [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)를 기반으로 하며,
 이 프로젝트는 [Semantic Versioning](http://semver.org/spec/v2.0.0.html)을 따릅니다.
 
-## [0.9.3] - 2024-11-13
+## [0.9.3] - 2026-06-26
 
 **New**
 - *ITaskWaitState.WaitingFor(Func<UniTask>)* 메서드를 추가하여 *TaskWaitStates*가 *UniTask* 타입 호출을 대기할 수 있도록 지원
 
 **Fixed**
 - *Statechart*가 WebGL에서 실행될 수 있도록 패키지에 *UniTask*를 추가
+- *Statechart.MoveNext*에 가드를 추가하여 상태 차트가 일시 정지된 동안 연쇄 상태 전이를 중단하도록 수정
 
 ## [0.9.2] - 2024-10-25
 

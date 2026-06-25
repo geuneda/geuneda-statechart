@@ -63,7 +63,7 @@ namespace Geuneda.StatechartMachine
 #if UNITY_EDITOR
 		public string CurrentState => _currentState.Name;
 #endif
-		
+
 		private Statechart() {}
 
 		public Statechart(Action<IStateFactory> setup)
@@ -122,6 +122,11 @@ namespace Geuneda.StatechartMachine
 
 		private void MoveNext(IStatechartEvent trigger)
 		{
+			if (!_isRunning)
+			{
+				return;
+			}
+
 			var nextState = _currentState.Trigger(trigger);
 			while (nextState != null)
 			{
