@@ -19,7 +19,7 @@ namespace Geuneda.StatechartMachine
 	/// <summary>
 	/// 상태 차트를 나타내고 이를 구동하는 메인 객체입니다.
 	/// 상태 차트 구성은 생성자의 설정 액션에서 정의되며 런타임 중에는 수정할 수 없습니다.
-	/// 시맨틱스는 <see cref="http://www.omg.org/spec/UML"/>을 참조하세요.
+	/// 시맨틱스는 <see href="http://www.omg.org/spec/UML"/>을 참조하세요.
 	/// </summary>
 	public interface IStatechart : IStateMachineDebug
 	{
@@ -31,7 +31,8 @@ namespace Geuneda.StatechartMachine
 
 		/// <summary>
 		/// 현재 앵커된 위치에서 상태 차트의 제어를 시작/재개합니다.
-		/// 이미 실행 중인 경우 아무 작업도 수행하지 않습니다.
+		/// 이미 실행 중이어도 무시하지 않고 항상 현재 상태를 이벤트 없이 다시 처리합니다.
+		/// 따라서 일시 정지 동안 완료된 대기 상태나 <see cref="Reset"/> 이후의 초기 상태는 이 호출에서 다음 상태로 전이됩니다.
 		/// </summary>
 		void Run();
 

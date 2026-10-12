@@ -120,10 +120,11 @@ namespace Geuneda.StatechartMachine
 		/// 중첩 영역이 완료되는 즉시 트리거될 생성된 <see cref="ITransition"/>을 반환합니다.
 		/// </summary>
 		/// <remarks>
-		/// 이 <see cref="INestState"/>가 완료될 때 현재 활성 상태의
-		/// <see cref="IStateExit.OnExit"/>를 실행합니다.
-		/// 이 <see cref="INestState"/>가 완료될 때 중첩 상태의
-		/// <see cref="IFinalState"/>는 실행하지 않습니다.
+		/// 이 <see cref="INestState"/>를 떠날 때 <see cref="NestedStateData.ExecuteExit"/>가 true이면
+		/// 중첩 영역의 현재 활성 상태의 <see cref="IStateExit.OnExit"/>를 실행합니다.
+		/// <see cref="NestedStateData.ExecuteFinal"/>이 true이고 중첩 영역의 현재 활성 상태가 <see cref="IFinalState"/>나
+		/// <see cref="ILeaveState"/>가 아니면(이벤트로 떠나는 경우) 중첩 영역의 <see cref="IFinalState"/>를 실행합니다.
+		/// 중첩 영역이 <see cref="IFinalState"/>에 도달해 완료된 경우에는 도달할 때 이미 실행되었으므로 다시 실행하지 않습니다.
 		/// </remarks>
 		ITransition Nest(NestedStateData data);
 	}
@@ -181,8 +182,8 @@ namespace Geuneda.StatechartMachine
 	}
 
 	/// <summary>
-	/// 분할 상태는 <see cref="IStatechart"/>에서 두 개의 새로운 중첩 병렬 영역을 생성할 수 있게 합니다.
-	/// 두 개의 새로운 중첩 영역은 병렬로 실행되고 처리됩니다.
+	/// 분할 상태는 <see cref="IStatechart"/>에서 두 개 이상의 새로운 중첩 병렬 영역을 생성할 수 있게 합니다.
+	/// 새로운 중첩 영역들은 병렬로 실행되고 처리됩니다.
 	/// </summary>
 	public interface ISplitState : IStateEnter, IStateExit, IStateEvent
 	{
@@ -193,16 +194,18 @@ namespace Geuneda.StatechartMachine
 		ITransition Split(params Action<IStateFactory>[] data);
 
 		/// <summary>
-		/// 상태를 동시에 활성화되는 두 개의 새로운 중첩 병렬 영역으로 분할합니다.
+		/// 상태를 동시에 활성화되는 두 개 이상의 새로운 중첩 병렬 영역으로 분할합니다.
 		/// <paramref name="data"/>에 정의된 모든 중첩 영역을 설정합니다.
-		/// 두 중첩 영역이 각각의 <see cref="IFinalState"/>에 도달하여 실행을 완료하면
+		/// 모든 중첩 영역이 각각의 <see cref="IFinalState"/>에 도달하여 실행을 완료하면
 		/// 트리거될 생성된 <see cref="ITransition"/>을 반환합니다.
 		/// </summary>
 		/// <remarks>
-		/// 이 <see cref="ISplitState"/>가 완료될 때 현재 활성 상태의
-		/// <see cref="IStateExit.OnExit"/>를 실행합니다.
-		/// 이 <see cref="ISplitState"/>가 완료될 때 중첩 상태의
-		/// <see cref="IFinalState"/>는 실행하지 않습니다.
+		/// 이 <see cref="ISplitState"/>를 떠날 때 각 중첩 영역의 <see cref="NestedStateData.ExecuteExit"/>가 true이면
+		/// 그 영역의 현재 활성 상태의 <see cref="IStateExit.OnExit"/>를 실행합니다.
+		/// <see cref="NestedStateData.ExecuteFinal"/>이 true이고 그 영역의 현재 활성 상태가
+		/// <see cref="IFinalState"/>나 <see cref="ILeaveState"/>가 아니면(이벤트나 다른 영역의 <see cref="ILeaveState"/>로 떠나는 경우)
+		/// 그 영역의 <see cref="IFinalState"/>를 실행합니다.
+		/// <see cref="IFinalState"/>에 도달한 영역은 도달할 때 이미 실행되었으므로 다시 실행하지 않습니다.
 		/// </remarks>
 		ITransition Split(params NestedStateData[] data);
 	}
@@ -227,8 +230,8 @@ namespace Geuneda.StatechartMachine
 		/// </summary>
 		public Action<IStateFactory> Setup;
 		/// <summary>
-		/// true인 경우 이 <see cref="ISplitState"/>의 완료로 중첩 상태를 떠날 때
-		/// 내부 현재 활성 <see cref="IStateExit.OnExit"/>가 실행됩니다.
+		/// true인 경우 이 중첩 상태를 가진 <see cref="INestState"/> 또는 <see cref="ISplitState"/>를 떠날 때
+		/// (완료, 이벤트, <see cref="ILeaveState"/> 모두) 내부 현재 활성 <see cref="IStateExit.OnExit"/>가 실행됩니다.
 		/// </summary>
 		public bool ExecuteExit;
 		/// <summary>

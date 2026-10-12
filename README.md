@@ -129,7 +129,7 @@ download.WaitingFor(DownloadAsync).Target(next); // Func<Task> 또는 Func<UniTa
 
 ### 검증과 디버깅
 
-- 에디터 또는 `DEBUG` 빌드에서는 생성자가 모든 상태의 구성을 검증합니다. 자기 자신으로의 전이, 대상 없는 자동 전이, Choice 의 기본 전이 누락 등은 예외로 알려 줍니다. Initial 상태가 없으면 빌드 종류와 관계없이 `MissingMemberException` 이 발생합니다.
+- 에디터 또는 `DEBUG` 빌드에서는 생성자가 모든 상태의 구성을 검증합니다. 자기 자신으로의 전이, 대상 없는 자동 전이, Choice 의 기본 전이 누락, Nest/Split 하위 영역의 Initial 누락 등은 예외로 알려 줍니다. 최상위 영역에 Initial 상태가 없으면 빌드 종류와 관계없이 `MissingMemberException` 이 발생합니다.
 - `OnEnter`/`OnExit`/`OnTransition`/대기 액션에서 발생한 예외는 잡혀서 `Debug.LogError` 와 `Debug.LogException` 으로 출력되고, 상태 흐름은 계속됩니다.
 - `Statechart.LogsEnabled` 또는 상태별 `IState.LogsEnabled` 를 켜면 전이 로그를 콘솔에 출력합니다. 에디터에서는 `Statechart.CurrentState` 로 최상위 영역의 현재 상태 이름을 볼 수 있습니다.
 

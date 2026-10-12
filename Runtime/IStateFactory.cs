@@ -15,7 +15,7 @@ namespace Geuneda.StatechartMachine
 		IFinalState Final(string name);
 		/// <inheritdoc cref="ISimpleState"/>
 		ISimpleState State(string name);
-		/// <inheritdoc cref="ITransition"/>
+		/// <inheritdoc cref="ITransitionState"/>
 		ITransitionState Transition(string name);
 		/// <inheritdoc cref="INestState"/>
 		INestState Nest(string name);

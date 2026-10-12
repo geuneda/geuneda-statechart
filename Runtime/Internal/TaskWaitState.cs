@@ -15,6 +15,7 @@ namespace Geuneda.StatechartMachine.Internal
 		private Func<UniTask> _taskAwaitAction;
 		private IStatechartEvent _eventQueued;
 		private bool _triggered;
+		private bool _isStartingTask;
 
 		private readonly IList<Action> _onEnter = new List<Action>();
 		private readonly IList<Action> _onExit = new List<Action>();
@@ -134,7 +135,9 @@ namespace Geuneda.StatechartMachine.Internal
 			if (!_triggered)
 			{
 				_triggered = true;
+				_isStartingTask = true;
 				_ = InnerTaskAwait(statechartEvent?.Name);
+				_isStartingTask = false;
 			}
 
 			return Completed ? _transition : null;
@@ -154,7 +157,11 @@ namespace Geuneda.StatechartMachine.Internal
 
 				Completed = true;
 
-				_stateFactory.Data.StateChartMoveNextCall(_eventQueued);
+				// 태스크가 동기적으로 완료되면 진행 중인 OnTrigger가 이어서 전이하므로 상태 차트를 다시 진행시키지 않습니다
+				if (!_isStartingTask)
+				{
+					_stateFactory.Data.StateChartMoveNextCall(_eventQueued);
+				}
 			}
 			catch (Exception e)
 			{

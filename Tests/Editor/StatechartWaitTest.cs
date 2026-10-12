@@ -111,6 +111,22 @@ namespace GeunedaEditor.StatechartMachine.Tests
 		}
 
 		[Test]
+		public void WaitState_CompleteSynchronously_TransitionsOnce()
+		{
+			var statechart = new Statechart(factory => SetupWaitState(factory, waitActivity => waitActivity.Complete()));
+
+			statechart.Run();
+
+			_caller.Received(1).OnTransitionCall(0);
+			_caller.Received(1).InitialOnExitCall(0);
+			_caller.Received(1).StateOnEnterCall(0);
+			_caller.Received(1).OnTransitionCall(1);
+			_caller.DidNotReceive().OnTransitionCall(2);
+			_caller.Received(1).StateOnExitCall(0);
+			_caller.Received(1).FinalOnEnterCall(0);
+		}
+
+		[Test]
 		public void WaitState_EventTrigger_ForceCompleted()
 		{
 			var statechart = new Statechart(factory => SetupWaitState(factory, waitActivity => { }));

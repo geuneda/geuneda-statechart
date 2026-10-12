@@ -89,6 +89,11 @@ namespace Geuneda.StatechartMachine.Internal
 			
 			for (var i = 0; i < _innerStatesData.Count; i++)
 			{
+				if (_innerStatesData[i].InitialState == null)
+				{
+					throw new InvalidOperationException($"The state {Name} has a nested setup without an initial state");
+				}
+
 				foreach(var state in _innerStatesData[i].NestedFactory.States)
 				{
 					state.Validate();

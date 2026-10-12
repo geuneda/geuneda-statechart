@@ -13,6 +13,7 @@ namespace Geuneda.StatechartMachine.Internal
 		private IWaitActivityInternal _waitingActivity;
 		private Action<IWaitActivity> _waitAction;
 		private bool _triggered;
+		private bool _isInvokingWaitAction;
 
 		private readonly IList<Action> _onEnter = new List<Action>();
 		private readonly IList<Action> _onExit = new List<Action>();
@@ -132,7 +133,8 @@ namespace Geuneda.StatechartMachine.Internal
 
 		private void OnActivityComplete(uint id)
 		{
-			if (id == _waitingActivity.Id)
+			// 대기 액션 안에서 동기적으로 완료되면 진행 중인 OnTrigger가 이어서 전이하므로 상태 차트를 다시 진행시키지 않습니다
+			if (id == _waitingActivity.Id && !_isInvokingWaitAction)
 			{
 				_stateFactory.Data.StateChartMoveNextCall(null);
 			}
@@ -154,7 +156,9 @@ namespace Geuneda.StatechartMachine.Internal
 			if (!_triggered)
 			{
 				_triggered = true;
+				_isInvokingWaitAction = true;
 				InnerWait(statechartEvent?.Name);
+				_isInvokingWaitAction = false;
 			}
 
 			return _waitingActivity.IsCompleted ? _transition : null;

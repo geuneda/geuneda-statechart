@@ -402,6 +402,18 @@ namespace GeunedaEditor.StatechartMachine.Tests
 		}
 
 		[Test]
+		public void NestedState_MissingNestedInitial_ThrowsException()
+		{
+			Assert.Throws<InvalidOperationException>(() => new Statechart(factory =>
+			{
+				var nest = factory.Nest("Nest");
+				var final = SetupSimpleFlow(factory, nest);
+
+				nest.Nest(SetupNestedFlowWithoutInitial).OnTransition(() => _caller.OnTransitionCall(2)).Target(final);
+			}));
+		}
+
+		[Test]
 		public void NestedState_TransitionsLoop_ThrowsException()
 		{
 			Assert.Throws<InvalidOperationException>(() => new Statechart(factory =>
@@ -447,6 +459,14 @@ namespace GeunedaEditor.StatechartMachine.Tests
 			state.OnEnter(() => _caller.StateOnEnterCall(0));
 			state.Event(_event1).OnTransition(() => _caller.OnTransitionCall(1)).Target(final);
 			state.OnExit(() => _caller.StateOnExitCall(0));
+		}
+
+		private void SetupNestedFlowWithoutInitial(IStateFactory factory)
+		{
+			var state = factory.State("State");
+			var final = factory.Final("final");
+
+			state.Event(_event1).OnTransition(() => _caller.OnTransitionCall(1)).Target(final);
 		}
 
 		#endregion

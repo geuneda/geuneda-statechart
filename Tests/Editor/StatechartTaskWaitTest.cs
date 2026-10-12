@@ -106,6 +106,29 @@ namespace GeunedaEditor.StatechartMachine.Tests
 		}
 
 		[Test]
+		public void UniTaskWait_CompleteSynchronously_TransitionsOnce()
+		{
+			var statechart = new Statechart(factory =>
+			{
+				var waiting = factory.TaskWait("Task Wait");
+				var final = SetupSimpleFlow(factory, waiting);
+
+				waiting.OnEnter(() => _caller.StateOnEnterCall(0));
+				waiting.WaitingFor(() => UniTask.CompletedTask).OnTransition(() => _caller.OnTransitionCall(1)).Target(final);
+				waiting.OnExit(() => _caller.StateOnExitCall(0));
+			});
+
+			statechart.Run();
+
+			_caller.Received(1).OnTransitionCall(0);
+			_caller.Received(1).InitialOnExitCall(0);
+			_caller.Received(1).StateOnEnterCall(0);
+			_caller.Received(1).OnTransitionCall(1);
+			_caller.Received(1).StateOnExitCall(0);
+			_caller.Received(1).FinalOnEnterCall(0);
+		}
+
+		[Test]
 		public void TaskWait_MissingConfiguration_ThrowsException()
 		{
 			Assert.Throws<InvalidOperationException>(() => new Statechart(factory =>

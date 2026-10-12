@@ -166,10 +166,10 @@ namespace Geuneda.StatechartMachine.Internal
 			{
 				var finalMessage = "";
 #if UNITY_EDITOR || DEBUG
-				finalMessage = $"\nStackTrace log of '{state.Name}' state creation bellow.\n{CreationStackTrace}";
+				finalMessage = $"\nStackTrace log of '{state.Name}' state creation bellow.\n{state.CreationStackTrace}";
 #endif
 
-				Debug.LogError($"Exception in the state '{state.Name}', OnExit() actions.\n" +
+				Debug.LogError($"Exception in the state '{state.Name}', OnEnter() actions.\n" +
 					$"-->> Check the exception log after this one for more details <<-- {finalMessage}");
 				Debug.LogException(e);
 			}

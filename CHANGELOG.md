@@ -4,6 +4,14 @@
 이 형식은 [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)를 기반으로 하며,
 이 프로젝트는 [Semantic Versioning](http://semver.org/spec/v2.0.0.html)을 따릅니다.
 
+## [0.9.4] - 2026-10-12
+
+**Fixed**
+- *IWaitState*의 대기 액션 안에서 활동을 동기적으로 완료하거나 *ITaskWaitState*에 이미 완료된 *UniTask*를 넘기면 완료 콜백이 진행 중인 처리 안으로 재진입해 *OnExit*, 전이, 다음 상태의 *OnEnter*가 두 번 실행되던 문제를 수정
+- *INestState*/*ISplitState*의 하위 영역에 *IInitialState*가 없으면 실행 시점에 *NullReferenceException*이 나던 문제를, 생성자 검증에서 *InvalidOperationException*을 던지도록 수정
+- 상태 진입 중 예외 로그가 "OnExit() actions"로 표시되고 퇴장하는 상태의 생성 스택 트레이스를 보여 주던 문제를 수정
+- *IStatechart.Run*, *ISplitState*, *INestState*, *NestedStateData.ExecuteExit*, *IStateFactory.Transition* 문서 주석을 실제 동작에 맞게 수정
+
 ## [0.9.3] - 2026-06-26
 
 **New**
