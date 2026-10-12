@@ -64,7 +64,7 @@ public class EnemyAI : MonoBehaviour
 
 1. `new Statechart(setup)`: `setup` 에 전달된 `IStateFactory` 로 상태를 만들고 전이를 연결합니다. 이후에는 구성을 바꿀 수 없습니다.
 2. `Run()`: Initial 상태부터 실행을 시작하거나, 일시정지된 위치에서 재개합니다.
-3. `Trigger(event)`: 현재 상태에 정의된 이벤트 전이를 run-to-completion 방식으로 처리합니다. 일시정지 중에 보낸 이벤트는 버려집니다.
+3. `Trigger(event)`: 현재 상태에 정의된 이벤트 전이를 run-to-completion 방식으로 처리합니다. 상태의 진입/퇴장/전이 액션 안에서 보낸 이벤트는 진행 중인 처리가 끝난 뒤(새 상태에 들어간 뒤) 순서대로 처리됩니다. 일시정지 중에 보낸 이벤트는 버려집니다.
 4. `Pause()`: 실행을 멈춥니다. `Run()` 으로 재개합니다.
 5. `Reset()`: 현재 위치를 Initial 상태로 되돌립니다. 실행/정지 여부는 바꾸지 않고 현재 상태의 `OnExit` 도 호출하지 않습니다.
 

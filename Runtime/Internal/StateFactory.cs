@@ -12,6 +12,8 @@ namespace Geuneda.StatechartMachine.Internal
 	{
 		public Action<IStatechartEvent> StateChartMoveNextCall;
 		public IStatechart Statechart;
+		// 상태 차트가 Reset 될 때마다 바뀌는 값. 전이 도중 리셋되었는지 확인하는 데 쓴다
+		public Func<int> ResetVersion;
 	}
 
 	/// <inheritdoc />

@@ -80,7 +80,15 @@ namespace Geuneda.StatechartMachine.Internal
 		/// <inheritdoc />
 		public IStateInternal Trigger(IStatechartEvent statechartEvent)
 		{
+			// 사용자 코드(대기 액션, 선택 조건, 중첩 영역의 전이)가 실행되기 전의 리셋 세대를 기억한다
+			var resetVersion = _stateFactory.Data.ResetVersion();
 			var transition = OnTrigger(statechartEvent);
+
+			// 그 안에서 Reset 되었으면 이 전이를 버린다
+			if (resetVersion != _stateFactory.Data.ResetVersion())
+			{
+				return null;
+			}
 
 			if (transition == null)
 			{
@@ -113,8 +121,27 @@ namespace Geuneda.StatechartMachine.Internal
 			}
 
 			TriggerExit();
+
+			// 퇴장/전이 액션 안에서 Reset 되면 버려진 전이이므로 남은 전이 액션과 목적 상태 진입을 하지 않는다
+			if (resetVersion != _stateFactory.Data.ResetVersion())
+			{
+				return null;
+			}
+
 			TriggerTransition(transition, statechartEvent?.Name);
+
+			if (resetVersion != _stateFactory.Data.ResetVersion())
+			{
+				return null;
+			}
+
 			TriggerEnter(nextState);
+
+			// 진입 액션 안에서 Reset 되면 진입한 상태를 다음 상태로 넘기지 않는다(호출한 쪽이 연쇄 전이를 멈춘다)
+			if (resetVersion != _stateFactory.Data.ResetVersion())
+			{
+				return null;
+			}
 
 			return nextState;
 		}

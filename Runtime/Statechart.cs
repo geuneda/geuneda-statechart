@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Geuneda.StatechartMachine.Internal;
 
 // ReSharper disable CheckNamespace
@@ -54,7 +55,13 @@ namespace Geuneda.StatechartMachine
 	public class Statechart : IStatechart
 	{
 		private bool _isRunning;
+		private bool _isMovingNext;
+		// Reset 할 때마다 바뀐다. 처리 도중 리셋되면 진행 중인 전이 결과를 버리는 데 쓴다
+		private int _resetVersion;
 		private IStateInternal _currentState;
+
+		// 상태 처리 도중에 들어온 이벤트. 현재 처리가 끝난 뒤 순서대로 처리한다
+		private readonly Queue<IStatechartEvent> _pendingEvents = new Queue<IStatechartEvent>();
 
 		private readonly IStateFactoryInternal _stateFactory;
 
@@ -69,7 +76,7 @@ namespace Geuneda.StatechartMachine
 
 		public Statechart(Action<IStateFactory> setup)
 		{
-			var stateFactory = new StateFactory(0, new StateFactoryData { Statechart = this, StateChartMoveNextCall = MoveNext });
+			var stateFactory = new StateFactory(0, new StateFactoryData { Statechart = this, StateChartMoveNextCall = MoveNext, ResetVersion = GetResetVersion });
 
 			setup(stateFactory);
 
@@ -119,6 +126,9 @@ namespace Geuneda.StatechartMachine
 		public void Reset()
 		{
 			_currentState = _stateFactory.InitialState;
+			// 상태 액션 안에서 리셋되면 리셋 전에 쌓인 요청과 진행 중인 전이 결과가 리셋 뒤에 섞이지 않게 한다
+			_resetVersion++;
+			_pendingEvents.Clear();
 		}
 
 		private void MoveNext(IStatechartEvent trigger)
@@ -128,10 +138,54 @@ namespace Geuneda.StatechartMachine
 				return;
 			}
 
+			// 진입/퇴장/전이 액션 안에서 다시 들어온 요청은 현재 처리가 끝난 뒤 순서대로 처리한다(run-to-completion).
+			// 바로 처리하면 _currentState 가 아직 이전 상태라 이미 빠져나온 상태로 이벤트를 처리하게 된다.
+			if (_isMovingNext)
+			{
+				_pendingEvents.Enqueue(trigger);
+				return;
+			}
+
+			_isMovingNext = true;
+
+			try
+			{
+				ProcessEvent(trigger);
+
+				while (_isRunning && _pendingEvents.Count > 0)
+				{
+					ProcessEvent(_pendingEvents.Dequeue());
+				}
+			}
+			finally
+			{
+				_isMovingNext = false;
+				// 일시 정지나 예외로 처리하지 못한 요청은 버린다(일시 정지 중 Trigger 를 무시하는 것과 같다)
+				_pendingEvents.Clear();
+			}
+		}
+
+		private int GetResetVersion()
+		{
+			return _resetVersion;
+		}
+
+		private void ProcessEvent(IStatechartEvent trigger)
+		{
+			var resetVersion = _resetVersion;
 			var nextState = _currentState.Trigger(trigger);
-			while (nextState != null)
+
+			// 처리 도중 Reset 되었으면 리셋 전 전이의 결과로 현재 상태를 덮어쓰지 않는다
+			while (nextState != null && resetVersion == _resetVersion)
 			{
 				_currentState = nextState;
+
+				// 연쇄 전이 도중 일시 정지되면 방금 진입한 상태에서 멈춘다. 다시 Run 하면 이 상태부터 이어서 진행한다
+				if (!_isRunning)
+				{
+					break;
+				}
+
 				nextState = _currentState.Trigger(null);
 			}
 		}

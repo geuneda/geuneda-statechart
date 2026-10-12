@@ -276,6 +276,7 @@ namespace Geuneda.StatechartMachine.Internal
 		{
 			var nextTransition = _transition;
 			var leaveState = (LeaveState) null;
+			var resetVersion = _stateFactory.Data.ResetVersion();
 
 			for (var i = 0; i < _innerStatesData.Count; i++)
 			{
@@ -289,6 +290,12 @@ namespace Geuneda.StatechartMachine.Internal
 					{
 						innerState.CurrenState = nextState;
 						nextState = innerState.CurrenState.Trigger(null);
+					}
+
+					// 영역 처리 중 상태 차트가 Reset 되면 다른 영역과 이 상태의 완료 전이를 진행하지 않는다
+					if (resetVersion != _stateFactory.Data.ResetVersion())
+					{
+						return null;
 					}
 				}
 
