@@ -14,6 +14,8 @@ namespace Geuneda.StatechartMachine.Internal
 		private Action<IWaitActivity> _waitAction;
 		private bool _triggered;
 		private bool _isInvokingWaitAction;
+		// 대기 액션을 시작할 때의 리셋 세대. 그 뒤 Reset 되면 늦게 오는 완료는 버려진 실행의 것이므로 무시한다
+		private int _waitResetVersion;
 
 		private readonly IList<Action> _onEnter = new List<Action>();
 		private readonly IList<Action> _onExit = new List<Action>();
@@ -134,7 +136,8 @@ namespace Geuneda.StatechartMachine.Internal
 		private void OnActivityComplete(uint id)
 		{
 			// 대기 액션 안에서 동기적으로 완료되면 진행 중인 OnTrigger가 이어서 전이하므로 상태 차트를 다시 진행시키지 않습니다
-			if (id == _waitingActivity.Id && !_isInvokingWaitAction)
+			if (id == _waitingActivity.Id && !_isInvokingWaitAction &&
+			    _waitResetVersion == _stateFactory.Data.ResetVersion())
 			{
 				_stateFactory.Data.StateChartMoveNextCall(null);
 			}
@@ -156,6 +159,7 @@ namespace Geuneda.StatechartMachine.Internal
 			if (!_triggered)
 			{
 				_triggered = true;
+				_waitResetVersion = _stateFactory.Data.ResetVersion();
 				_isInvokingWaitAction = true;
 				InnerWait(statechartEvent?.Name);
 				_isInvokingWaitAction = false;

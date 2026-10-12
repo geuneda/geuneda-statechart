@@ -1,4 +1,5 @@
 using System;
+using Cysharp.Threading.Tasks;
 using Geuneda.StatechartMachine;
 using NSubstitute;
 using NUnit.Framework;
@@ -389,6 +390,107 @@ namespace GeunedaEditor.StatechartMachine.Tests
 
 			// 대기 액션 안에서 리셋되면 대기 상태의 전이와 목적 상태 진입을 하지 않는다
 			Assert.AreEqual(0, enteredB);
+			Assert.AreEqual("Initial", statechart.CurrentState);
+		}
+
+		[Test]
+		public void TaskWait_CompletesAfterReset_DoesNotRestartChart()
+		{
+			var completion = new UniTaskCompletionSource();
+			var enteredAfter = 0;
+			var statechart = new Statechart(factory =>
+			{
+				var initial = factory.Initial("Initial");
+				var waiting = factory.TaskWait("TaskWait");
+				var after = factory.State("After");
+				var final = factory.Final("final");
+
+				initial.Transition().Target(waiting);
+				waiting.WaitingFor(() => completion.Task).Target(after);
+				after.OnEnter(() => enteredAfter++);
+				after.Event(_event).Target(final);
+			});
+
+			statechart.Run();
+			statechart.Reset();
+			completion.TrySetResult();
+
+			// 리셋 전에 시작한 태스크의 완료는 버려진 실행의 것이므로 상태 차트를 다시 진행시키지 않는다
+			Assert.AreEqual(0, enteredAfter);
+			Assert.AreEqual("Initial", statechart.CurrentState);
+		}
+
+		[Test]
+		public void Wait_CompletesAfterReset_DoesNotRestartChart()
+		{
+			IWaitActivity activity = null;
+			var statechart = new Statechart(factory =>
+			{
+				var initial = factory.Initial("Initial");
+				var waiting = factory.Wait("Waiting");
+				var after = factory.State("After");
+				var final = factory.Final("final");
+
+				initial.Transition().Target(waiting);
+				waiting.WaitingFor(waitActivity => activity = waitActivity).Target(after);
+				after.Event(_event).Target(final);
+			});
+
+			statechart.Run();
+			statechart.Reset();
+			activity.Complete();
+
+			Assert.AreEqual("Initial", statechart.CurrentState);
+		}
+
+		[Test]
+		public void Split_ResetInsideRegionExit_StopsRemainingExitAndFinals()
+		{
+			var innerEvent = new StatechartEvent("InnerEvent");
+			var region2Exited = 0;
+			var region2FinalEntered = 0;
+			var enteredAfter = 0;
+			Statechart statechart = null;
+			statechart = new Statechart(factory =>
+			{
+				var split = factory.Split("Split");
+				var after = factory.State("After");
+				var final = SetupSimpleFlow(factory, split);
+
+				split.Split(
+					new NestedStateData(region =>
+					{
+						var regionInitial = region.Initial("Region1Initial");
+						var regionState = region.State("Region1State");
+						var regionFinal = region.Final("Region1Final");
+
+						regionInitial.Transition().Target(regionState);
+						regionState.OnExit(() => statechart.Reset());
+						regionState.Event(innerEvent).Target(regionFinal);
+					}),
+					new NestedStateData(region =>
+					{
+						var regionInitial = region.Initial("Region2Initial");
+						var regionState = region.State("Region2State");
+						var regionFinal = region.Final("Region2Final");
+
+						regionInitial.Transition().Target(regionState);
+						regionState.OnExit(() => region2Exited++);
+						regionState.Event(innerEvent).Target(regionFinal);
+						regionFinal.OnEnter(() => region2FinalEntered++);
+					})).Target(final);
+				split.Event(_event).Target(after);
+				after.OnEnter(() => enteredAfter++);
+				after.Event(_event).Target(final);
+			});
+
+			statechart.Run();
+			statechart.Trigger(_event);
+
+			// 첫 영역의 종료 중 리셋되면 다른 영역의 종료와 Final 진입, 외부 목적 상태 진입을 하지 않는다
+			Assert.AreEqual(0, region2Exited);
+			Assert.AreEqual(0, region2FinalEntered);
+			Assert.AreEqual(0, enteredAfter);
 			Assert.AreEqual("Initial", statechart.CurrentState);
 		}
 

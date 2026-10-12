@@ -45,6 +45,9 @@ namespace Geuneda.StatechartMachine.Internal
 		{
 			_isPaused = false;
 
+			// 영역을 종료하는 도중 상태 차트가 Reset 되면 남은 영역의 종료와 Final 진입, 이 상태의 퇴장 액션을 실행하지 않는다
+			var resetVersion = _stateFactory.Data.ResetVersion();
+
 			for (var i = 0; i < _innerStatesData.Count; i++)
 			{
 				var innerState = _innerStatesData[i];
@@ -52,11 +55,21 @@ namespace Geuneda.StatechartMachine.Internal
 				if (innerState.ExecuteExit)
 				{
 					innerState.CurrenState.Exit();
+
+					if (resetVersion != _stateFactory.Data.ResetVersion())
+					{
+						return;
+					}
 				}
 
 				if (innerState.ExecuteFinal && !(innerState.CurrenState is FinalState) && !(innerState.CurrenState is LeaveState))
 				{
 					innerState.NestedFactory.FinalState?.Enter();
+
+					if (resetVersion != _stateFactory.Data.ResetVersion())
+					{
+						return;
+					}
 				}
 			}
 			

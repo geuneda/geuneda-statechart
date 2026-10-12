@@ -145,6 +145,9 @@ namespace Geuneda.StatechartMachine.Internal
 
 		private async UniTask InnerTaskAwait(string eventName)
 		{
+			// 이 실행을 시작할 때의 리셋 세대. 그 뒤 Reset 되면 이 실행의 완료는 버린다(이전 실행이 새 대기를 덮어쓰지 않게)
+			var resetVersion = _stateFactory.Data.ResetVersion();
+
 			try
 			{
 				if (IsStateLogsEnabled)
@@ -154,6 +157,11 @@ namespace Geuneda.StatechartMachine.Internal
 
 				//await Task.Yield(); 호출 생략
 				await _taskAwaitAction();
+
+				if (resetVersion != _stateFactory.Data.ResetVersion())
+				{
+					return;
+				}
 
 				Completed = true;
 

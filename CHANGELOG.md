@@ -4,6 +4,12 @@
 이 형식은 [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)를 기반으로 하며,
 이 프로젝트는 [Semantic Versioning](http://semver.org/spec/v2.0.0.html)을 따릅니다.
 
+## [0.9.6] - 2026-10-12
+
+**Fixed**
+- *Reset* 전에 시작한 *IWaitState* 활동이나 *ITaskWaitState* 태스크가 리셋 뒤에 완료되면 추가 *Run* 없이 상태 차트가 초기 상태부터 다시 진행되던 문제를 수정. 버려진 실행의 완료는 무시합니다
+- *ISplitState*/*INestState* 를 빠져나가며 영역을 종료하는 도중 *Reset*하면 남은 영역의 퇴장 액션과 Final 진입, 이 상태의 퇴장 액션이 계속 실행되던 문제를 수정
+
 ## [0.9.5] - 2026-10-12
 
 **Changed**
