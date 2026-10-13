@@ -4,7 +4,7 @@
 이 형식은 [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)를 기반으로 하며,
 이 프로젝트는 [Semantic Versioning](http://semver.org/spec/v2.0.0.html)을 따릅니다.
 
-## [Unreleased]
+## [0.10.0] - 2026-10-13
 
 **New**
 - *ITaskWaitState.Failed()* 추가. 태스크가 예외로 끝났을 때 실행할 전이를 설정합니다
