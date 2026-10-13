@@ -4,6 +4,25 @@
 이 형식은 [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)를 기반으로 하며,
 이 프로젝트는 [Semantic Versioning](http://semver.org/spec/v2.0.0.html)을 따릅니다.
 
+## [Unreleased]
+
+**New**
+- *ITaskWaitState.Failed()* 추가. 태스크가 예외로 끝났을 때 실행할 전이를 설정합니다
+- *ITaskWaitState.WaitingFor(Func<CancellationToken, Task>)*, *WaitingFor(Func<CancellationToken, UniTask>)* 추가. 부모 *INestState*/*ISplitState*가 이벤트나 *ILeaveState*로 퇴장하려 하거나 *Statechart.Reset*되면 토큰에 취소를 요청합니다. 이 취소로 생긴 *OperationCanceledException*은 실패로 보지 않습니다
+
+**Fixed**
+- *ITaskWaitState*의 태스크가 예외로 끝나면 상태가 완료되지 않아 상태 차트가 그 자리에 멈추고, 부모 *INestState*/*ISplitState*도 미뤄 둔 퇴장을 끝내지 못하던 문제를 수정. 예외를 로그로 남긴 뒤 *Failed()* 전이(없으면 *WaitingFor* 전이)를 실행하고, 퇴장이 미뤄진 경우에는 미뤄 둔 이벤트로 부모가 퇴장합니다
+- *ISplitState*/*INestState*에 대상 없는 이벤트(*OnTransition*만 등록)가 들어와도 퇴장할 때처럼 내부 *IWaitState*를 강제 완료하고 실행 중인 태스크를 기다리던 문제를 수정. 대상 없는 이벤트는 내부 대기를 건드리지 않고 바로 실행합니다
+- 퇴장을 미룬 *ISplitState*/*INestState*가 한 영역에서 태스크가 실행 중이면 뒤쪽 중첩 영역의 *IWaitState*를 강제 완료하지 않던 문제를 수정. 모든 하위 영역을 정리합니다
+- 미뤄 둔 퇴장이 이어질 때 태스크 완료가 퇴장 이벤트를 다시 보내, 같은 *ISplitState*의 다른 영역이나 퇴장 뒤 들어간 상태가 그 이벤트를 한 번 더 처리하던 문제를 수정. 퇴장을 미룬 상태가 이벤트를 기억했다가 한 번만 씁니다
+- 대상 없는 *INestState*/*ISplitState* 완료 전이(*OnTransition*만 설정)가 하위 영역이 모두 Final인 동안 *Run*이나 대기 완료로 진행 요청이 올 때마다 다시 실행되던 문제를 수정. 진입마다 한 번만 실행합니다
+- 퇴장이 미뤄진 동안 상태 차트를 *Pause*한 사이 태스크가 끝나면, 다시 *Run*해도 미뤄 둔 퇴장이 사라지고 그 자리에 머물던 문제를 수정
+- 대기 액션 예외에 대한 README와 문서 주석의 설명을 실제 동작에 맞게 수정. *IWaitState*의 대기 액션이 예외를 던지면 활동이 완료되거나 이벤트가 올 때까지 기다립니다
+
+**Changed**
+- *Statechart.Reset*이 실행 중인 *ITaskWaitState* 태스크에 취소를 요청합니다(토큰을 받는 *WaitingFor*에서만 효과가 있음)
+- *ITaskWaitState*의 로그가 *Func<Task>*를 넘긴 경우에도 내부 람다 대신 사용자가 넘긴 메서드 이름을 보여 줍니다
+
 ## [0.9.6] - 2026-10-12
 
 **Fixed**

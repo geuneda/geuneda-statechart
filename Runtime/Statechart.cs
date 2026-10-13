@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using Geuneda.StatechartMachine.Internal;
 
 // ReSharper disable CheckNamespace
@@ -47,6 +48,7 @@ namespace Geuneda.StatechartMachine
 		/// 상태 차트를 초기 시작 지점으로 리셋합니다.
 		/// 이 호출은 상태 차트의 제어를 일시 정지하거나 재개하지 않습니다. 상태 차트가 이벤트 대기 모드이거나
 		/// 일시 정지 상태인 경우, 재개하려면 <see cref="Run"/>을 호출해야 합니다.
+		/// 실행 중인 <see cref="ITaskWaitState"/> 태스크에는 취소를 요청하고, 그 태스크의 완료는 무시합니다.
 		/// </summary>
 		void Reset();
 	}
@@ -129,6 +131,30 @@ namespace Geuneda.StatechartMachine
 			// 상태 액션 안에서 리셋되면 리셋 전에 쌓인 요청과 진행 중인 전이 결과가 리셋 뒤에 섞이지 않게 한다
 			_resetVersion++;
 			_pendingEvents.Clear();
+
+			// 리셋 전에 시작한 태스크의 결과는 버리므로 실행 중인 태스크에 취소를 요청한다.
+			// 취소 콜백에서 Run 하면 상태가 다시 진입해 새 실행이 시작될 수 있으므로, 리셋 전 실행을 먼저 모두 떼어 낸 뒤 취소한다
+			List<(TaskWaitState State, CancellationTokenSource Cancellation)> runningTasks = null;
+
+			for (var i = 0; i < _stateFactory.States.Count; i++)
+			{
+				if (_stateFactory.States[i] is TaskWaitState taskWaitState &&
+				    taskWaitState.TakeCancellation() is { } cancellation)
+				{
+					runningTasks ??= new List<(TaskWaitState, CancellationTokenSource)>();
+					runningTasks.Add((taskWaitState, cancellation));
+				}
+			}
+
+			if (runningTasks == null)
+			{
+				return;
+			}
+
+			for (var i = 0; i < runningTasks.Count; i++)
+			{
+				runningTasks[i].State.Cancel(runningTasks[i].Cancellation);
+			}
 		}
 
 		private void MoveNext(IStatechartEvent trigger)

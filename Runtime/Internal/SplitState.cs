@@ -14,6 +14,10 @@ namespace Geuneda.StatechartMachine.Internal
 		protected readonly IList<InnerStateData> _innerStatesData = new List<InnerStateData>();
 
 		private bool _isPaused;
+		// 퇴장을 미룬 이벤트. Leave 로 퇴장을 미뤘으면 null 이다
+		private IStatechartEvent _pausedEvent;
+		// 대상 없는 완료 전이를 이번 진입에서 이미 실행했는지. 대상이 없으면 이 상태에 머무르므로 이후 이벤트 없는 진행에서 다시 실행하지 않게 한다
+		private bool _isTargetlessCompletionDone;
 		private ITransitionInternal _transition;
 
 		public SplitState(string name, IStateFactoryInternal factory) : base(name, factory)
@@ -24,6 +28,8 @@ namespace Geuneda.StatechartMachine.Internal
 		public override void Enter()
 		{
 			_isPaused = false;
+			_pausedEvent = null;
+			_isTargetlessCompletionDone = false;
 
 			for (var i = 0; i < _innerStatesData.Count; i++)
 			{
@@ -211,34 +217,58 @@ namespace Geuneda.StatechartMachine.Internal
 		/// <inheritdoc />
 		protected override ITransitionInternal OnTrigger(IStatechartEvent statechartEvent)
 		{
-			if(_isPaused && !IsAllCompleted())
+			if (_isPaused)
 			{
-				return null;
-			}
+				if (!IsAllCompleted())
+				{
+					return null;
+				}
 
-			var isUnpausing = _isPaused;
-			_isPaused = false;
+				// 내부 태스크가 모두 끝났으므로 미뤄 둔 퇴장을 이어 간다. 이 요청의 이벤트가 아니라 퇴장을 미룬 이벤트로 처리하므로
+				// 태스크 완료 요청이 여러 번 오거나 일시 정지로 요청이 버려진 뒤 Run 해도 퇴장은 한 번만, 원래 이벤트로 일어난다
+				_isPaused = false;
+
+				return _pausedEvent != null && _events.TryGetValue(_pausedEvent, out var pausedTransition)
+					? pausedTransition
+					: ProcessInnerStates(null, true);
+			}
 
 			if (statechartEvent != null && _events.TryGetValue(statechartEvent, out var transition))
 			{
-				// 일부 작업이 실행 중인 동안 이 상태의 완료를 지연시킴
-				return !isUnpausing && DelayForceComplete(statechartEvent) ? null : transition;
+				// 이 상태를 떠나는 이벤트면 실행 중인 태스크가 끝날 때까지 퇴장을 미룬다.
+				// 대상 없는 이벤트는 상태를 떠나지 않으므로 내부 대기를 건드리지 않고 바로 처리한다
+				if (transition.TargetState != null && DelayForceComplete())
+				{
+					_pausedEvent = statechartEvent;
+
+					return null;
+				}
+
+				return transition;
 			}
 
-			return ProcessInnerStates(statechartEvent, isUnpausing);
+			return ProcessInnerStates(statechartEvent, false);
 		}
 
 		/// <summary>
-		/// 대기 가능한 작업이 완료를 차단할 때 이 상태의 완료를 지연시킵니다.
-		/// 그 동안 실행 중인 <see cref="WaitState"/>를 강제 완료하거나, 완료 대기 중인
-		/// <see cref="TaskWaitState"/>에 <see cref="IStatechartEvent"/>를 큐에 넣습니다.
-		/// 모든 작업이 완료될 때까지 이 상태를 일시 정지합니다.
-		/// 이 메서드는 중첩 상태를 처리하여 설정과의 연결 오류를 방지합니다.
-		/// 내부 <see cref="TaskWaitState"/> 완료를 위해 상태가 일시 정지된 경우 true를 반환합니다.
+		/// 이 상태가 떠나기 전에 하위 영역의 대기 작업을 정리하고, 아직 끝나지 않은 태스크가 있으면 퇴장을 미루도록 일시 정지합니다.
+		/// 내부 태스크가 실행 중이라 일시 정지한 경우 true를 반환합니다.
 		/// </summary>
-		internal bool DelayForceComplete(IStatechartEvent statechartEvent)
+		private bool DelayForceComplete()
 		{
-			_isPaused = false;
+			_isPaused = StopInnerWaits();
+
+			return _isPaused;
+		}
+
+		/// <summary>
+		/// 모든 하위 영역(중첩 영역 포함)의 현재 상태가 <see cref="WaitState"/>면 강제 완료하고,
+		/// 실행 중인 <see cref="TaskWaitState"/>면 태스크에 취소를 요청합니다.
+		/// 취소 요청 뒤에도 끝나지 않은 태스크가 있으면 true를 반환합니다.
+		/// </summary>
+		private bool StopInnerWaits()
+		{
+			var hasRunningTask = false;
 
 			for (var i = 0; i < _innerStatesData.Count; i++)
 			{
@@ -250,17 +280,19 @@ namespace Geuneda.StatechartMachine.Internal
 				}
 				else if(currenState is TaskWaitState taskState && !taskState.Completed)
 				{
-					_isPaused = true;
-
-					taskState.EnqueuEvent(statechartEvent);
+					// 취소 콜백 안에서 태스크가 바로 끝날 수 있으므로 취소 뒤에 완료 여부를 다시 본다
+					taskState.CancelTask();
+					hasRunningTask = hasRunningTask || !taskState.Completed;
 				}
 				else if(currenState is SplitState splitState)
 				{
-					_isPaused = _isPaused || splitState.DelayForceComplete(statechartEvent);
+					// 앞 영역의 결과와 관계없이 모든 중첩 영역을 방문해야 뒤쪽 태스크에도 취소가 전달된다
+					var innerHasRunningTask = splitState.StopInnerWaits();
+					hasRunningTask = hasRunningTask || innerHasRunningTask;
 				}
 			}
 
-			return _isPaused;
+			return hasRunningTask;
 		}
 		
 		/// <summary>
@@ -327,7 +359,24 @@ namespace Geuneda.StatechartMachine.Internal
 			if(leaveState != null)
 			{
 				// 일부 작업이 실행 중인 동안 이 상태의 완료를 지연시킴
-				nextTransition = !isUnpausing && DelayForceComplete(null) ? null : leaveState.LeaveTransition;
+				if (!isUnpausing && DelayForceComplete())
+				{
+					_pausedEvent = null;
+					nextTransition = null;
+				}
+				else
+				{
+					nextTransition = leaveState.LeaveTransition;
+				}
+			}
+			else if (nextTransition != null && nextTransition.TargetState == null)
+			{
+				if (_isTargetlessCompletionDone)
+				{
+					return null;
+				}
+
+				_isTargetlessCompletionDone = true;
 			}
 
 			return nextTransition;

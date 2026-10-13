@@ -1,5 +1,6 @@
 using Cysharp.Threading.Tasks;
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 // ReSharper disable CheckNamespace
@@ -153,8 +154,12 @@ namespace Geuneda.StatechartMachine
 	/// 태스크 대기 상태는 <see cref="IStatechart"/> 동작을 차단하는 상태입니다.
 	/// 비동기로 정의된 <see cref="Task"/>의 완료를 기다린 후 상태 차트 실행을 재개합니다.
 	/// 스레드 태스크 중 동시성을 방지하기 위해 이 상태는 <see cref="IStateEvent.Event(IStatechartEvent)"/>를 실행할 수 없습니다.
-	/// 부모 <see cref="INestState"/> 또는 <see cref="ISplitState"/>에서 퇴장할 때 이 상태가 현재 활성 상태인 경우,
-	/// 동시성 병목을 피하기 위해 퇴장을 일시 정지하고 대기 과정 중 보류된 모든 이벤트를 큐에 넣습니다.
+	/// 부모 <see cref="INestState"/> 또는 <see cref="ISplitState"/>가 대상 있는 이벤트나 <see cref="ILeaveState"/>로 퇴장할 때
+	/// 이 상태의 태스크가 실행 중이면, 동시성 병목을 피하기 위해 부모가 퇴장을 미루고 그 이벤트를 기억합니다.
+	/// 이때 <see cref="CancellationToken"/> 을 받는 <c>WaitingFor</c> 로 시작한 태스크에는 취소를 요청합니다.
+	/// 태스크가 끝나면(취소 포함) 부모는 기억한 이벤트로 한 번 퇴장하고, 미루는 동안 들어온 다른 이벤트는 버립니다.
+	/// 대상 없는 부모 이벤트는 퇴장이 아니므로 태스크를 취소하거나 기다리지 않습니다.
+	/// 태스크가 예외로 끝나면 예외를 로그로 남기고, <see cref="Failed"/> 전이가 있으면 그 전이를, 없으면 <c>WaitingFor</c> 의 전이를 실행합니다.
 	/// </summary>
 	public interface ITaskWaitState : IStateEnter, IStateExit
 	{
@@ -166,6 +171,24 @@ namespace Geuneda.StatechartMachine
 
 		/// <inheritdoc cref="WaitingFor(Func<Task>)"/>
 		ITransition WaitingFor(Func<UniTask> taskAwaitAction);
+
+		/// <summary>
+		/// 주어진 비동기 <paramref name="taskAwaitAction"/>이 완료될 때까지 상태 동작을 차단합니다.
+		/// 상태가 차단 해제되는 즉시 트리거될 생성된 <see cref="ITransition"/>을 반환합니다.
+		/// 부모 <see cref="INestState"/>/<see cref="ISplitState"/>가 대상 있는 이벤트나 <see cref="ILeaveState"/>로 퇴장하려 하거나
+		/// <see cref="IStatechart.Reset"/> 되면 전달한 토큰에 취소를 요청합니다.
+		/// 이 취소로 생긴 <see cref="OperationCanceledException"/> 은 실패로 보지 않습니다.
+		/// </summary>
+		ITransition WaitingFor(Func<CancellationToken, Task> taskAwaitAction);
+
+		/// <inheritdoc cref="WaitingFor(Func<CancellationToken, Task>)"/>
+		ITransition WaitingFor(Func<CancellationToken, UniTask> taskAwaitAction);
+
+		/// <summary>
+		/// 태스크가 예외로 끝났을 때 실행할 전이를 설정합니다. 예외는 이 전이와 관계없이 로그로 남습니다.
+		/// 설정하지 않으면 태스크가 실패해도 <c>WaitingFor</c> 의 전이를 실행합니다.
+		/// </summary>
+		ITransition Failed();
 	}
 
 	/// <summary>

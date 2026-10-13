@@ -124,15 +124,20 @@ var loading = factory.Wait("Loading");
 loading.WaitingFor(activity => StartCoroutine(Load(activity))).Target(next);
 
 var download = factory.TaskWait("Download");
-download.WaitingFor(DownloadAsync).Target(next); // Func<Task> 또는 Func<UniTask>
+download.WaitingFor(DownloadAsync).Target(next); // Func<Task>, Func<UniTask>, 또는 CancellationToken 을 받는 형태
+download.Failed().Target(retry);                  // 선택: 태스크가 예외로 끝났을 때의 전이
 ```
+
+- `TaskWait` 의 태스크가 예외로 끝나면 예외를 로그로 남기고 `Failed()` 전이를 실행합니다. `Failed()` 가 없으면 `WaitingFor` 의 전이를 실행합니다(이전에는 그 자리에 멈췄습니다).
+- `CancellationToken` 을 받는 `WaitingFor` 로 시작한 태스크는, 부모 Nest/Split 이 대상 있는 이벤트나 Leave 로 떠나려 하거나 `Reset()` 되면 토큰에 취소 요청을 받습니다. 부모는 태스크가 끝날 때까지(취소 포함) 퇴장을 미루고, 끝나면 미뤄 둔 이벤트로 한 번 떠납니다. 미루는 동안 들어온 다른 이벤트는 버립니다. 이 취소로 생긴 `OperationCanceledException` 은 실패로 보지 않습니다.
+- 대상 없는 부모 이벤트(`Target` 없이 `OnTransition` 만 등록)는 상태를 떠나지 않으므로 내부 `Wait` 를 강제 완료하거나 `TaskWait` 를 취소·대기하지 않고 바로 실행됩니다.
 
 `IWaitActivity.Split()` 으로 자식 활동을 만들면 모든 자식이 완료되어야 Wait 상태가 끝납니다.
 
 ### 검증과 디버깅
 
 - 에디터 또는 `DEBUG` 빌드에서는 생성자가 모든 상태의 구성을 검증합니다. 자기 자신으로의 전이, 대상 없는 자동 전이, Choice 의 기본 전이 누락, Nest/Split 하위 영역의 Initial 누락 등은 예외로 알려 줍니다. 최상위 영역에 Initial 상태가 없으면 빌드 종류와 관계없이 `MissingMemberException` 이 발생합니다.
-- `OnEnter`/`OnExit`/`OnTransition`/대기 액션에서 발생한 예외는 잡혀서 `Debug.LogError` 와 `Debug.LogException` 으로 출력되고, 상태 흐름은 계속됩니다.
+- `OnEnter`/`OnExit`/`OnTransition`/대기 액션에서 발생한 예외는 잡혀서 `Debug.LogError` 와 `Debug.LogException` 으로 출력되고, 상태 흐름은 계속됩니다. `Wait` 의 대기 액션이 예외를 던지면 활동이 완료되거나 이벤트가 올 때까지 기다리고, `TaskWait` 의 태스크가 예외로 끝나면 `Failed()` 전이(없으면 `WaitingFor` 전이)로 진행합니다.
 - `Statechart.LogsEnabled` 또는 상태별 `IState.LogsEnabled` 를 켜면 전이 로그를 콘솔에 출력합니다. 에디터에서는 `Statechart.CurrentState` 로 최상위 영역의 현재 상태 이름을 볼 수 있습니다.
 
 ## 요구 사항
