@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using UnityEngine;
 
 // ReSharper disable CheckNamespace
 
@@ -74,10 +73,9 @@ namespace Geuneda.StatechartMachine.Internal
 			}
 			catch (Exception e)
 			{
-				Debug.LogError($"Exception in the state '{Name}', when canceling the task wait action " +
+				Logger.Error(e, $"Exception in the state '{Name}', when canceling the task wait action " +
 					$"'{_taskAwaitDelegate.Target}.{_taskAwaitDelegate.Method.Name}()'.\n" +
 					$"-->> Check the exception log after this one for more details <<-- {CreationStackTraceMessage()}");
-				Debug.LogException(e);
 			}
 		}
 
@@ -251,7 +249,7 @@ namespace Geuneda.StatechartMachine.Internal
 			{
 				if (IsStateLogsEnabled)
 				{
-					Debug.Log($"TaskWait - '{eventName}' : '{_taskAwaitDelegate.Target}.{_taskAwaitDelegate.Method.Name}()' => '{Name}'");
+					Logger.Info($"TaskWait - '{eventName}' : '{_taskAwaitDelegate.Target}.{_taskAwaitDelegate.Method.Name}()' => '{Name}'");
 				}
 
 				//await Task.Yield(); 호출 생략
@@ -262,17 +260,16 @@ namespace Geuneda.StatechartMachine.Internal
 				// 부모 상태가 퇴장하려 하거나 Reset 되어 이 상태가 요청한 취소이므로 실패로 보지 않는다
 				if (IsStateLogsEnabled)
 				{
-					Debug.Log($"TaskWait - '{Name}' task canceled");
+					Logger.Info($"TaskWait - '{Name}' task canceled");
 				}
 			}
 			catch (Exception e)
 			{
 				failed = true;
 
-				Debug.LogError($"Exception in the state '{Name}', when calling the task wait action" +
+				Logger.Error(e, $"Exception in the state '{Name}', when calling the task wait action" +
 					$"'{_taskAwaitDelegate.Target}.{_taskAwaitDelegate.Method.Name}()'.\n" +
 					$"-->> Check the exception log after this one for more details <<-- {CreationStackTraceMessage()}");
-				Debug.LogException(e);
 			}
 			finally
 			{

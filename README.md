@@ -6,12 +6,13 @@ Statechart 개념: https://statecharts.github.io/what-is-a-statechart.html
 
 ## 설치
 
-이 패키지는 `com.cysharp.unitask` 에 의존합니다. UniTask 는 Unity 공식 레지스트리에 없으므로 함께 추가해야 합니다. 프로젝트의 `Packages/manifest.json` 에 다음을 추가합니다.
+이 패키지는 `com.geuneda.core` 와 `com.cysharp.unitask` 에 의존합니다. 둘 다 Unity 공식 레지스트리에 없으므로 함께 추가해야 합니다. 프로젝트의 `Packages/manifest.json` 에 다음을 추가합니다.
 
 ```json
 {
   "dependencies": {
     "com.cysharp.unitask": "https://github.com/Cysharp/UniTask.git?path=src/UniTask/Assets/Plugins/UniTask",
+    "com.geuneda.core": "https://github.com/geuneda/geuneda-core.git",
     "com.geuneda.statechart": "https://github.com/geuneda/geuneda-statechart.git"
   }
 }
@@ -137,12 +138,13 @@ download.Failed().Target(retry);                  // 선택: 태스크가 예외
 ### 검증과 디버깅
 
 - 에디터 또는 `DEBUG` 빌드에서는 생성자가 모든 상태의 구성을 검증합니다. 자기 자신으로의 전이, 대상 없는 자동 전이, Choice 의 기본 전이 누락, Nest/Split 하위 영역의 Initial 누락 등은 예외로 알려 줍니다. 최상위 영역에 Initial 상태가 없으면 빌드 종류와 관계없이 `MissingMemberException` 이 발생합니다.
-- `OnEnter`/`OnExit`/`OnTransition`/대기 액션에서 발생한 예외는 잡혀서 `Debug.LogError` 와 `Debug.LogException` 으로 출력되고, 상태 흐름은 계속됩니다. `Wait` 의 대기 액션이 예외를 던지면 활동이 완료되거나 이벤트가 올 때까지 기다리고, `TaskWait` 의 태스크가 예외로 끝나면 `Failed()` 전이(없으면 `WaitingFor` 전이)로 진행합니다.
-- `Statechart.LogsEnabled` 또는 상태별 `IState.LogsEnabled` 를 켜면 전이 로그를 콘솔에 출력합니다. 에디터에서는 `Statechart.CurrentState` 로 최상위 영역의 현재 상태 이름을 볼 수 있습니다.
+- `OnEnter`/`OnExit`/`OnTransition`/대기 액션에서 발생한 예외는 잡혀서 `Geuneda.Statechart` 로거로 Error 줄과 예외가 출력되고, 상태 흐름은 계속됩니다. `Wait` 의 대기 액션이 예외를 던지면 활동이 완료되거나 이벤트가 올 때까지 기다리고, `TaskWait` 의 태스크가 예외로 끝나면 `Failed()` 전이(없으면 `WaitingFor` 전이)로 진행합니다.
+- `Statechart.LogsEnabled` 또는 상태별 `IState.LogsEnabled` 를 켜면 전이 로그를 `Geuneda.Statechart` 로거의 Info 로 출력합니다. 에디터에서는 `Statechart.CurrentState` 로 최상위 영역의 현재 상태 이름을 볼 수 있습니다.
 
 ## 요구 사항
 
 - Unity 2022.3 이상
+- `com.geuneda.core` 0.4.0(로거 `ModuleLogger`)
 - `com.cysharp.unitask` 2.5.10
 - 네임스페이스: `Geuneda.StatechartMachine` (어셈블리 `Geuneda.Statechart`)
 

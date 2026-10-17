@@ -1,5 +1,5 @@
 using System;
-using UnityEngine;
+using Geuneda.Core;
 
 // ReSharper disable CheckNamespace
 
@@ -48,6 +48,8 @@ namespace Geuneda.StatechartMachine.Internal
 	/// <inheritdoc />
 	internal abstract class StateInternal : IStateInternal
 	{
+		protected static readonly ModuleLogger Logger = new ModuleLogger("Geuneda.Statechart");
+
 		protected readonly IStateFactoryInternal _stateFactory;
 
 		private static uint _idRef;
@@ -94,7 +96,7 @@ namespace Geuneda.StatechartMachine.Internal
 			{
 				if (IsStateLogsEnabled)
 				{
-					Debug.Log($"({GetType().UnderlyingSystemType.Name}) - '{statechartEvent?.Name}' : ## STOP ## '{Name}'");
+					Logger.Info($"({GetType().UnderlyingSystemType.Name}) - '{statechartEvent?.Name}' : ## STOP ## '{Name}'");
 				}
 				
 				return null;
@@ -106,7 +108,7 @@ namespace Geuneda.StatechartMachine.Internal
 			{
 				if (IsStateLogsEnabled)
 				{
-					Debug.Log($"({GetType().UnderlyingSystemType.Name}) - '{statechartEvent?.Name}' : " +
+					Logger.Info($"({GetType().UnderlyingSystemType.Name}) - '{statechartEvent?.Name}' : " +
 					          $"'{Name}' -> '{Name}' because => {GetType().UnderlyingSystemType.Name}");
 				}
 				
@@ -185,7 +187,7 @@ namespace Geuneda.StatechartMachine.Internal
 			{
 				if (IsStateLogsEnabled)
 				{
-					Debug.Log($"({state.GetType().UnderlyingSystemType.Name}) - Entering '{state.Name}'");
+					Logger.Info($"({state.GetType().UnderlyingSystemType.Name}) - Entering '{state.Name}'");
 				}
 				state.Enter();
 			}
@@ -196,9 +198,8 @@ namespace Geuneda.StatechartMachine.Internal
 				finalMessage = $"\nStackTrace log of '{state.Name}' state creation bellow.\n{state.CreationStackTrace}";
 #endif
 
-				Debug.LogError($"Exception in the state '{state.Name}', OnEnter() actions.\n" +
+				Logger.Error(e, $"Exception in the state '{state.Name}', OnEnter() actions.\n" +
 					$"-->> Check the exception log after this one for more details <<-- {finalMessage}");
-				Debug.LogException(e);
 			}
 		}
 
@@ -208,7 +209,7 @@ namespace Geuneda.StatechartMachine.Internal
 			{
 				if(IsStateLogsEnabled)
 				{
-					Debug.LogFormat($"({GetType().UnderlyingSystemType.Name}) - Exiting '{Name}'");
+					Logger.Info($"({GetType().UnderlyingSystemType.Name}) - Exiting '{Name}'");
 				}
 				Exit();
 			}
@@ -219,9 +220,8 @@ namespace Geuneda.StatechartMachine.Internal
 				finalMessage = $"\nStackTrace log of '{Name}' state creation bellow.\n{CreationStackTrace}";
 #endif
 
-				Debug.LogError($"Exception in the state '{Name}', OnExit() actions.\n" +
+				Logger.Error(e, $"Exception in the state '{Name}', OnExit() actions.\n" +
 					$"-->> Check the exception log after this one for more details <<-- {finalMessage}");
-				Debug.LogException(e);
 			}
 		}
 
@@ -233,7 +233,7 @@ namespace Geuneda.StatechartMachine.Internal
 				{
 					var targetState = transition.TargetState?.Name ?? "only invokes OnTransition()";
 					
-					Debug.Log($"({GetType().UnderlyingSystemType.Name}) - '{eventName}' : '{Name}' -> '{targetState}'");
+					Logger.Info($"({GetType().UnderlyingSystemType.Name}) - '{eventName}' : '{Name}' -> '{targetState}'");
 				}
 				
 				transition.TriggerTransition();
@@ -245,9 +245,8 @@ namespace Geuneda.StatechartMachine.Internal
 				finalMessage = $"\nStackTrace log of this transition creation bellow.\n{transition.CreationStackTrace}";
 #endif
 
-				Debug.LogError($"Exception in the transition '{Name}' -> '{transition.TargetState?.Name}'" +
+				Logger.Error(e, $"Exception in the transition '{Name}' -> '{transition.TargetState?.Name}'" +
 					$"-->> Check the exception log after this one for more details <<-- {finalMessage}");
-				Debug.LogException(e);
 			}
 		}
 	}

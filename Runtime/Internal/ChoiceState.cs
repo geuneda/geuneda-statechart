@@ -76,8 +76,8 @@ namespace Geuneda.StatechartMachine.Internal
 
 			if (noTransitionConditionCount > 1)
 			{
-				UnityEngine.Debug.LogWarning($"Choice state {Name} has multiple transition without a condition defined." +
-				                             "This will lead to improper behaviour and will pick a random transition");
+				Logger.Warning($"Choice state {Name} has multiple transition without a condition defined." +
+				               "This will lead to improper behaviour and will pick a random transition");
 			}
 #endif
 		}

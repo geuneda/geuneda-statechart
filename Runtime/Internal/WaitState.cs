@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using UnityEngine;
 
 // ReSharper disable CheckNamespace
 
@@ -174,7 +173,7 @@ namespace Geuneda.StatechartMachine.Internal
 			{
 				if (IsStateLogsEnabled)
 				{
-					Debug.Log($"'{eventName}' event triggers the wait method '{_waitAction.Method.Name}'" +
+					Logger.Info($"'{eventName}' event triggers the wait method '{_waitAction.Method.Name}'" +
 							  $"from the object {_waitAction.Target} in the state {Name}");
 				}
 				_waitAction(_waitingActivity);
@@ -186,10 +185,9 @@ namespace Geuneda.StatechartMachine.Internal
 				finalMessage = $"\nStackTrace log of '{Name}' state creation bellow.\n{CreationStackTrace}";
 #endif
 
-				Debug.LogError($"Exception in the state '{Name}', when calling the wait action {_waitAction.Method.Name}" +
+				Logger.Error(e, $"Exception in the state '{Name}', when calling the wait action {_waitAction.Method.Name}" +
 					$" from the object {_waitAction.Target}.\n" +
 					$"-->> Check the exception log after this one for more details <<-- {finalMessage}");
-				Debug.LogException(e);
 			}
 		}
 	}
